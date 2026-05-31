@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Emily's Cookbook</title>
+
+<style>
+body{
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: auto;
+    padding: 20px;
+    background:#fafafa;
+}
+
+h1{
+    text-align:center;
+}
+
+.card{
+    background:white;
+    border-radius:12px;
+    padding:15px;
+    margin-top:15px;
+    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+}
+
+input, textarea{
+    width:100%;
+    padding:10px;
+    margin-top:8px;
+    margin-bottom:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+}
+
+button{
+    padding:10px 16px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+}
+
+.primary{
+    background:#ff7f50;
+    color:white;
+}
+
+img{
+    width:100%;
+    border-radius:10px;
+    margin-top:10px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>🍳 Emily's Cookbook</h1>
+
+<div class="card">
+<button class="primary" onclick="randomMeal()">🎲 What should I cook?</button>
+<p id="randomResult"></p>
+</div>
+
+<div class="card">
+<h2>Add Meal</h2>
+
+<input type="text" id="name" placeholder="Meal name">
+
+<textarea id="ingredients" placeholder="Ingredients"></textarea>
+
+<textarea id="recipe" placeholder="Recipe"></textarea>
+
+<input type="file" id="photo" accept="image/*">
+
+<button class="primary" onclick="saveMeal()">Save Meal</button>
+</div>
+
+<div id="meals"></div>
+
+<script>
+let meals = JSON.parse(localStorage.getItem("meals")) || [];
+
+function saveMeal(){
+
+const name = document.getElementById("name").value;
+const ingredients = document.getElementById("ingredients").value;
+const recipe = document.getElementById("recipe").value;
+
+const file = document.getElementById("photo").files[0];
+
+if(!name){
+alert("Please enter a meal name");
+return;
+}
+
+const reader = new FileReader();
+
+reader.onload = function(e){
+
+meals.push({
+name,
+ingredients,
+recipe,
+photo:e.target.result
+});
+
+localStorage.setItem("meals", JSON.stringify(meals));
+
+renderMeals();
+
+document.getElementById("name").value="";
+document.getElementById("ingredients").value="";
+document.getElementById("recipe").value="";
+document.getElementById("photo").value="";
+};
+
+if(file){
+reader.readAsDataURL(file);
+}else{
+reader.onload({target:{result:""}});
+}
+}
+
+function renderMeals(){
+
+const container=document.getElementById("meals");
+
+container.innerHTML="";
+
+meals.forEach(meal=>{
+
+container.innerHTML += `
+<div class="card">
+<h3>${meal.name}</h3>
+
+${meal.photo ? `<img src="${meal.photo}">` : ""}
+
+<p><strong>Ingredients</strong><br>${meal.ingredients}</p>
+
+<p><strong>Recipe</strong><br>${meal.recipe}</p>
+</div>
+`;
+});
+}
+
+function randomMeal(){
+
+if(meals.length===0){
+document.getElementById("randomResult").innerText =
+"Add some meals first!";
+return;
+}
+
+const meal =
+meals[Math.floor(Math.random()*meals.length)];
+
+document.getElementById("randomResult").innerText =
+meal.name;
+}
+
+renderMeals();
+</script>
+
+</body>
+</html>
