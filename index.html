@@ -24,14 +24,8 @@ body{
   color:var(--text);
 }
 
-/* Layout */
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:18px;
-}
+.container{max-width:900px;margin:auto;padding:18px;}
 
-/* Hero */
 .hero{
   background:linear-gradient(135deg,var(--burnt),#d97a4d);
   color:white;
@@ -43,21 +37,14 @@ body{
 
 .subtitle{opacity:.95;margin-top:8px}
 
-/* Cards */
 .card{
   background:var(--card);
   border-radius:20px;
   padding:16px;
   margin-top:16px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
-  transition:0.2s ease;
 }
 
-.card:hover{
-  transform:translateY(-3px);
-}
-
-/* Inputs */
 input,textarea,select{
   width:100%;
   padding:12px;
@@ -67,90 +54,50 @@ input,textarea,select{
   margin-bottom:10px;
 }
 
-/* Buttons */
 button{
   border:none;
   border-radius:14px;
   padding:12px 16px;
   cursor:pointer;
   font-weight:600;
-  transition:0.2s ease;
-}
-
-button:hover{
-  transform:scale(1.02);
-  opacity:0.9;
 }
 
 .primary{background:var(--burnt);color:white;}
 .secondary{background:var(--sage);color:white;}
 
-/* Grid */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
-  gap:14px;
-}
-
-/* Meal image */
 .meal-img{
   width:100%;
   border-radius:14px;
   margin-top:10px;
-  max-height:220px;
+  max-height:300px;
   object-fit:cover;
 }
 
-/* Tags */
 .tag{
   display:inline-block;
   background:var(--sage);
   color:white;
   padding:4px 10px;
   border-radius:999px;
+  margin-right:6px;
   font-size:12px;
 }
 
-/* Favorite */
 .favorite{
   font-size:22px;
   cursor:pointer;
 }
 
-/* Empty state */
-.empty{
-  text-align:center;
-  opacity:0.7;
-  padding:30px;
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
 }
 
-/* Modal */
-.modal{
-  position:fixed;
-  top:0;left:0;
-  width:100%;
-  height:100%;
-  background:rgba(0,0,0,0.6);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.modal-content{
-  background:white;
-  max-width:600px;
-  width:100%;
-  border-radius:20px;
-  padding:18px;
-  max-height:90vh;
-  overflow:auto;
-}
-
-.close{
-  float:right;
+.star{
+  font-size:26px;
   cursor:pointer;
-  font-size:20px;
+  user-select:none;
 }
 </style>
 </head>
@@ -162,24 +109,24 @@ button:hover{
   <div class="hero">
     <h1>🍳 Maggie's Cookbook</h1>
     <p class="subtitle">
-      Made with love — a little collection of meals worth making again 💛
+      Made by Maggie. Taste-tested and enthusiastically approved by Adina ❤️
     </p>
   </div>
 
-  <!-- Random -->
+  <!-- SEARCH + RANDOM -->
   <div class="card">
     <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
 
     <button class="primary" onclick="randomMeal()">
-      🎲 Cook something for me
+      🎲 What should I cook today?
     </button>
 
     <div id="randomBox"></div>
   </div>
 
-  <!-- Add Meal -->
+  <!-- ADD MEAL -->
   <div class="card">
-    <h2>➕ Add a Memory Meal</h2>
+    <h2>Add a Meal 💛</h2>
 
     <input id="name" placeholder="Meal name">
 
@@ -190,194 +137,191 @@ button:hover{
       <option>Dessert</option>
     </select>
 
-    <input id="rating" type="number" min="1" max="5" value="5">
+    <!-- STAR RATING -->
+    <p>Rating</p>
+    <div id="stars" class="star">★★★★★</div>
 
     <input id="date" type="date">
 
-    <textarea id="ingredients" placeholder="What you'll need"></textarea>
+    <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
 
-    <textarea id="recipe" placeholder="How I made it for you"></textarea>
+    <textarea id="recipe" placeholder="Recipe"></textarea>
 
     <input id="photo" type="file" accept="image/*">
 
-    <button class="primary" onclick="saveMeal()">Save Meal 💛</button>
+    <button class="primary" onclick="saveMeal()">Save Meal</button>
   </div>
 
-  <!-- Meals -->
+  <!-- MEALS -->
   <div id="meals" class="grid"></div>
 
-</div>
-
-<!-- Modal -->
-<div class="modal" id="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeModal()">✖</span>
-    <div id="modalBody"></div>
-  </div>
 </div>
 
 <script>
 
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
+let selectedRating = 5;
 
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-function clearForm(){
-  document.getElementById("name").value="";
-  document.getElementById("ingredients").value="";
-  document.getElementById("recipe").value="";
-  document.getElementById("date").value="";
-  document.getElementById("photo").value="";
-  document.getElementById("rating").value=5;
-  document.getElementById("tag").selectedIndex=0;
+/* ⭐ STAR SYSTEM */
+function setupStars(){
+  const stars = document.getElementById("stars");
+
+  function render(n){
+    stars.innerHTML = "★★★★★"
+      .split("")
+      .map((s,i)=> i < n ? "★" : "☆")
+      .join("");
+  }
+
+  render(selectedRating);
+
+  stars.onclick = (e)=>{
+    const rect = stars.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const starWidth = rect.width / 5;
+    selectedRating = Math.max(1, Math.ceil(x / starWidth));
+    render(selectedRating);
+  };
 }
 
+setupStars();
+
+/* SAVE */
 function saveMeal(){
 
   const file = document.getElementById("photo").files[0];
 
-  const meal = {
+  const mealData = {
     name: document.getElementById("name").value.trim(),
     tag: document.getElementById("tag").value,
-    rating: document.getElementById("rating").value,
+    rating: selectedRating,
     date: document.getElementById("date").value,
     ingredients: document.getElementById("ingredients").value,
     recipe: document.getElementById("recipe").value,
-    favorite:false,
-    lastCooked:""
+    favorite:false
   };
 
-  if(!meal.name){
-    alert("Give your meal a name 💛");
+  if(!mealData.name){
+    alert("Please enter a meal name.");
     return;
   }
 
-  function finish(){
-    meals.unshift(meal);
+  const saveAndRender = () => {
+    meals.unshift(mealData);
     saveMeals();
     renderMeals();
-    clearForm();
-  }
+
+    document.getElementById("name").value = "";
+    document.getElementById("ingredients").value = "";
+    document.getElementById("recipe").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("photo").value = "";
+    document.getElementById("tag").selectedIndex = 0;
+
+    selectedRating = 5;
+    setupStars();
+  };
 
   if(file){
     const reader = new FileReader();
     reader.onload = e=>{
-      meal.photo = e.target.result;
-      finish();
+      mealData.photo = e.target.result;
+      saveAndRender();
     };
     reader.readAsDataURL(file);
   } else {
-    meal.photo="";
-    finish();
+    mealData.photo = "";
+    saveAndRender();
   }
 }
 
-function toggleFavorite(i){
-  meals[i].favorite = !meals[i].favorite;
+/* FAVORITES */
+function toggleFavorite(name){
+  const meal = meals.find(m => m.name === name);
+  if(!meal) return;
+
+  meal.favorite = !meal.favorite;
   saveMeals();
   renderMeals();
 }
 
-function openMeal(i){
-  const meal = meals[i];
-
-  document.getElementById("modalBody").innerHTML = `
-    <h2>${meal.name}</h2>
-
-    ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
-
-    <p><span class="tag">${meal.tag}</span></p>
-
-    <p>⭐ ${"⭐".repeat(Number(meal.rating||0))}</p>
-
-    <p><strong>What you'll need:</strong><br>${meal.ingredients||""}</p>
-
-    <p><strong>How I made it for you:</strong><br>${meal.recipe||""}</p>
-
-    <p><strong>Last cooked:</strong> ${meal.lastCooked || "Not yet"}</p>
-
-    <button class="primary" onclick="cookAgain(${i})">
-      🍳 Cook again
-    </button>
-  `;
-
-  document.getElementById("modal").style.display="flex";
-}
-
-function closeModal(){
-  document.getElementById("modal").style.display="none";
-}
-
-function cookAgain(i){
-  meals[i].lastCooked = new Date().toLocaleDateString();
-  saveMeals();
-  renderMeals();
-  openMeal(i);
-}
-
+/* RANDOM */
 function randomMeal(){
 
   const box = document.getElementById("randomBox");
 
-  if(meals.length===0){
-    box.innerHTML="<p>Add some meals first 💛</p>";
+  if(meals.length === 0){
+    box.innerHTML = "<p>Add some meals first!</p>";
     return;
   }
 
-  const pool = meals.filter(m=>m.favorite || m.rating>=4);
-  const list = pool.length ? pool : meals;
-
-  const meal = list[Math.floor(Math.random()*list.length)];
+  const meal = meals[Math.floor(Math.random() * meals.length)];
 
   box.innerHTML = `
     <div class="card">
-      <h3>💛 You should cook:</h3>
-      <h2>${meal.name}</h2>
+      <h3>🎲 Tonight's Pick: ${meal.name}</h3>
       ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+      <p><span class="tag">${meal.tag}</span></p>
+      <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
     </div>
   `;
 }
 
+/* RENDER + FAVORITES FIRST */
 function renderMeals(){
 
-  const q = document.getElementById("search").value.toLowerCase();
-  const box = document.getElementById("meals");
+  const searchText = document.getElementById("search").value.toLowerCase();
+  const mealsContainer = document.getElementById("meals");
 
-  box.innerHTML="";
+  mealsContainer.innerHTML = "";
 
-  if(meals.length===0){
-    box.innerHTML=`
-      <div class="card empty">
+  if(meals.length === 0){
+    mealsContainer.innerHTML = `
+      <div class="card">
         <h3>🍝 No meals yet</h3>
-        <p>Add your first dish to start your little cookbook 💛</p>
+        <p>Add your first dish to start your cookbook 💛</p>
       </div>
     `;
     return;
   }
 
-  meals.forEach((m,i)=>{
+  const sortedMeals = [...meals].sort((a,b)=> (b.favorite === true) - (a.favorite === true));
 
-    if(!m.name.toLowerCase().includes(q) && !m.tag.toLowerCase().includes(q)){
+  sortedMeals.forEach((meal)=>{
+
+    if(
+      !meal.name.toLowerCase().includes(searchText) &&
+      !meal.tag.toLowerCase().includes(searchText)
+    ){
       return;
     }
 
-    box.innerHTML += `
-      <div class="card" onclick="openMeal(${i})">
+    mealsContainer.innerHTML += `
+      <div class="card">
 
-        <div style="display:flex;justify-content:space-between;">
-          <h3>${m.name}</h3>
-          <span class="favorite" onclick="event.stopPropagation();toggleFavorite(${i})">
-            ${m.favorite?"❤️":"🤍"}
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>${meal.name}</h3>
+
+          <span class="favorite" onclick="toggleFavorite('${meal.name}')">
+            ${meal.favorite ? "❤️" : "🤍"}
           </span>
         </div>
 
-        ${m.photo ? `<img class="meal-img" src="${m.photo}">` : ""}
+        ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
 
-        <p><span class="tag">${m.tag}</span></p>
+        <p><span class="tag">${meal.tag}</span></p>
 
-        <p>⭐ ${"⭐".repeat(Number(m.rating||0))}</p>
+        <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
+
+        <p><strong>Last cooked:</strong> ${meal.date || "Unknown"}</p>
+
+        <p><strong>Ingredients 🥕</strong><br>${meal.ingredients || ""}</p>
+
+        <p><strong>Recipe</strong><br>${meal.recipe || ""}</p>
 
       </div>
     `;
