@@ -1,168 +1,225 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Emily's Cookbook</title>
+<meta name="theme-color" content="#C65D2E">
+<title>Maggie's Cookbook</title>
 
 <style>
+:root{
+  --burnt:#C65D2E;
+  --cream:#F8F2E7;
+  --sage:#A7B89A;
+  --text:#4A3428;
+  --card:#FFFFFF;
+}
+*{box-sizing:border-box}
 body{
-    font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: auto;
-    padding: 20px;
-    background:#fafafa;
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  background:var(--cream);
+  color:var(--text);
 }
-
-h1{
-    text-align:center;
+.container{max-width:900px;margin:auto;padding:18px;}
+.hero{
+  background:linear-gradient(135deg,var(--burnt),#d97a4d);
+  color:white;
+  padding:24px;
+  border-radius:24px;
+  text-align:center;
+  box-shadow:0 6px 20px rgba(0,0,0,.12);
 }
-
+.subtitle{opacity:.95;margin-top:8px}
 .card{
-    background:white;
-    border-radius:12px;
-    padding:15px;
-    margin-top:15px;
-    box-shadow:0 2px 8px rgba(0,0,0,0.1);
+  background:var(--card);
+  border-radius:20px;
+  padding:16px;
+  margin-top:16px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
 }
-
-input, textarea{
-    width:100%;
-    padding:10px;
-    margin-top:8px;
-    margin-bottom:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #ddd;
+  margin-top:8px;
+  margin-bottom:10px;
 }
-
 button{
-    padding:10px 16px;
-    border:none;
-    border-radius:8px;
-    cursor:pointer;
+  border:none;
+  border-radius:14px;
+  padding:12px 16px;
+  cursor:pointer;
+  font-weight:600;
 }
-
-.primary{
-    background:#ff7f50;
-    color:white;
+.primary{background:var(--burnt);color:white;}
+.secondary{background:var(--sage);color:white;}
+.meal-img{
+  width:100%;
+  border-radius:14px;
+  margin-top:10px;
+  max-height:300px;
+  object-fit:cover;
 }
-
-img{
-    width:100%;
-    border-radius:10px;
-    margin-top:10px;
+.tag{
+  display:inline-block;
+  background:var(--sage);
+  color:white;
+  padding:4px 10px;
+  border-radius:999px;
+  margin-right:6px;
+  font-size:12px;
 }
+.favorite{font-size:22px;cursor:pointer;}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px;}
+.hidden{display:none;}
 </style>
 </head>
-
 <body>
+<div class="container">
 
-<h1>🍳 Emily's Cookbook</h1>
-
-<div class="card">
-<button class="primary" onclick="randomMeal()">🎲 What should I cook?</button>
-<p id="randomResult"></p>
+<div class="hero">
+<h1>🍳 Maggie's Cookbook</h1>
+<p class="subtitle">Made by Maggie. Taste-tested and enthusiastically approved by Adina ❤️</p>
 </div>
 
 <div class="card">
-<h2>Add Meal</h2>
+<input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+<button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
+<div id="randomBox"></div>
+</div>
 
-<input type="text" id="name" placeholder="Meal name">
+<div class="card">
+<h2>Add a Meal</h2>
+
+<input id="name" placeholder="Meal name">
+
+<select id="tag">
+<option>Breakfast</option>
+<option>Lunch</option>
+<option>Dinner</option>
+<option>Dessert</option>
+</select>
+
+<input id="rating" type="number" min="1" max="5" value="5" placeholder="Rating">
+
+<input id="date" type="date">
 
 <textarea id="ingredients" placeholder="Ingredients"></textarea>
 
 <textarea id="recipe" placeholder="Recipe"></textarea>
 
-<input type="file" id="photo" accept="image/*">
+<input id="photo" type="file" accept="image/*">
 
 <button class="primary" onclick="saveMeal()">Save Meal</button>
 </div>
 
-<div id="meals"></div>
+<div id="meals" class="grid"></div>
+
+</div>
 
 <script>
-let meals = JSON.parse(localStorage.getItem("meals")) || [];
+let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
+
+function saveMeals(){
+ localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
+}
 
 function saveMeal(){
+ const file = document.getElementById("photo").files[0];
 
-const name = document.getElementById("name").value;
-const ingredients = document.getElementById("ingredients").value;
-const recipe = document.getElementById("recipe").value;
+ const mealData = {
+   name: name.value,
+   tag: tag.value,
+   rating: rating.value,
+   date: date.value,
+   ingredients: ingredients.value,
+   recipe: recipe.value,
+   favorite:false
+ };
 
-const file = document.getElementById("photo").files[0];
+ if(!mealData.name){
+   alert("Please enter a meal name.");
+   return;
+ }
 
-if(!name){
-alert("Please enter a meal name");
-return;
+ const reader = new FileReader();
+
+ reader.onload = e=>{
+   mealData.photo = e.target.result;
+   meals.unshift(mealData);
+   saveMeals();
+   renderMeals();
+   document.querySelectorAll("input, textarea").forEach(el=>{
+     if(el.type !== "file") el.value="";
+   });
+   tag.selectedIndex=0;
+   rating.value=5;
+   photo.value="";
+ };
+
+ if(file){
+   reader.readAsDataURL(file);
+ } else {
+   reader.onload({target:{result:""}});
+ }
 }
 
-const reader = new FileReader();
-
-reader.onload = function(e){
-
-meals.push({
-name,
-ingredients,
-recipe,
-photo:e.target.result
-});
-
-localStorage.setItem("meals", JSON.stringify(meals));
-
-renderMeals();
-
-document.getElementById("name").value="";
-document.getElementById("ingredients").value="";
-document.getElementById("recipe").value="";
-document.getElementById("photo").value="";
-};
-
-if(file){
-reader.readAsDataURL(file);
-}else{
-reader.onload({target:{result:""}});
-}
-}
-
-function renderMeals(){
-
-const container=document.getElementById("meals");
-
-container.innerHTML="";
-
-meals.forEach(meal=>{
-
-container.innerHTML += `
-<div class="card">
-<h3>${meal.name}</h3>
-
-${meal.photo ? `<img src="${meal.photo}">` : ""}
-
-<p><strong>Ingredients</strong><br>${meal.ingredients}</p>
-
-<p><strong>Recipe</strong><br>${meal.recipe}</p>
-</div>
-`;
-});
+function toggleFavorite(index){
+ meals[index].favorite = !meals[index].favorite;
+ saveMeals();
+ renderMeals();
 }
 
 function randomMeal(){
-
-if(meals.length===0){
-document.getElementById("randomResult").innerText =
-"Add some meals first!";
-return;
+ if(meals.length===0){
+   randomBox.innerHTML="<p>Add some meals first!</p>";
+   return;
+ }
+ const meal = meals[Math.floor(Math.random()*meals.length)];
+ randomBox.innerHTML = `
+   <div class="card">
+     <h3>🎲 Tonight's Pick: ${meal.name}</h3>
+     ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+     <p><span class="tag">${meal.tag}</span></p>
+     <p>${"⭐".repeat(meal.rating)}</p>
+   </div>
+ `;
 }
 
-const meal =
-meals[Math.floor(Math.random()*meals.length)];
+function renderMeals(){
+ const q = search.value.toLowerCase();
+ meals.innerHTML = "";
 
-document.getElementById("randomResult").innerText =
-meal.name;
+ JSON.parse(localStorage.getItem("maggiesCookbook") || "[]");
+
+ window.meals.forEach((meal,index)=>{
+   if(
+      !meal.name.toLowerCase().includes(q) &&
+      !meal.tag.toLowerCase().includes(q)
+   ) return;
+
+   meals.innerHTML += `
+   <div class="card">
+     <div style="display:flex;justify-content:space-between;">
+       <h3>${meal.name}</h3>
+       <span class="favorite" onclick="toggleFavorite(${index})">
+         ${meal.favorite ? "❤️" : "🤍"}
+       </span>
+     </div>
+
+     ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+
+     <p><span class="tag">${meal.tag}</span></p>
+     <p>${"⭐".repeat(meal.rating)}</p>
+     <p><strong>Last cooked:</strong> ${meal.date || "Unknown"}</p>
+     <p><strong>Ingredients</strong><br>${meal.ingredients}</p>
+     <p><strong>Recipe</strong><br>${meal.recipe}</p>
+   </div>`;
+ });
 }
-
 renderMeals();
 </script>
-
 </body>
 </html>
