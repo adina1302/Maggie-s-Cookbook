@@ -43,6 +43,14 @@ body{
   padding:16px;
   margin-top:16px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
+  transition:0.2s ease;
+}
+
+/* ❤️ FAVORITE GLOW */
+.card.favorite-glow{
+  box-shadow:0 6px 20px rgba(198,93,46,0.25);
+  border:1px solid rgba(198,93,46,0.25);
+  transform:scale(1.01);
 }
 
 input,textarea,select{
@@ -94,10 +102,19 @@ button{
   gap:14px;
 }
 
-.star{
+/* ⭐ STAR SYSTEM */
+.star-container{
+  display:flex;
+  gap:6px;
   font-size:26px;
   cursor:pointer;
   user-select:none;
+}
+.star{
+  transition:0.15s ease;
+}
+.star:hover{
+  transform:scale(1.2);
 }
 </style>
 </head>
@@ -106,54 +123,45 @@ button{
 
 <div class="container">
 
-  <div class="hero">
-    <h1>🍳 Maggie's Cookbook</h1>
-    <p class="subtitle">
-      Made by Maggie. Taste-tested and enthusiastically approved by Adina ❤️
-    </p>
-  </div>
+<div class="hero">
+<h1>🍳 Maggie's Cookbook</h1>
+<p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
+</div>
 
-  <!-- SEARCH + RANDOM -->
-  <div class="card">
-    <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+<div class="card">
+<input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+<button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
+<div id="randomBox"></div>
+</div>
 
-    <button class="primary" onclick="randomMeal()">
-      🎲 What should I cook today?
-    </button>
+<div class="card">
+<h2>Add a Meal 💛</h2>
 
-    <div id="randomBox"></div>
-  </div>
+<input id="name" placeholder="Meal name">
 
-  <!-- ADD MEAL -->
-  <div class="card">
-    <h2>Add a Meal 💛</h2>
+<select id="tag">
+<option>Breakfast</option>
+<option>Lunch</option>
+<option>Dinner</option>
+<option>Dessert</option>
+</select>
 
-    <input id="name" placeholder="Meal name">
+<!-- ⭐ FIXED STAR SYSTEM -->
+<p>Rating</p>
+<div id="stars" class="star-container"></div>
 
-    <select id="tag">
-      <option>Breakfast</option>
-      <option>Lunch</option>
-      <option>Dinner</option>
-      <option>Dessert</option>
-    </select>
+<input id="date" type="date">
 
-    <!-- STAR RATING -->
-    <p>Rating</p>
-    <div id="stars" class="star">★★★★★</div>
+<textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
 
-    <input id="date" type="date">
+<textarea id="recipe" placeholder="Recipe"></textarea>
 
-    <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
+<input id="photo" type="file" accept="image/*">
 
-    <textarea id="recipe" placeholder="Recipe"></textarea>
+<button class="primary" onclick="saveMeal()">Save Meal</button>
+</div>
 
-    <input id="photo" type="file" accept="image/*">
-
-    <button class="primary" onclick="saveMeal()">Save Meal</button>
-  </div>
-
-  <!-- MEALS -->
-  <div id="meals" class="grid"></div>
+<div id="meals" class="grid"></div>
 
 </div>
 
@@ -166,26 +174,23 @@ function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* ⭐ STAR SYSTEM */
+/* ⭐ FIXED STAR SYSTEM */
 function setupStars(){
-  const stars = document.getElementById("stars");
+  const container = document.getElementById("stars");
+  container.innerHTML = "";
 
-  function render(n){
-    stars.innerHTML = "★★★★★"
-      .split("")
-      .map((s,i)=> i < n ? "★" : "☆")
-      .join("");
+  for(let i=1;i<=5;i++){
+    const star = document.createElement("span");
+    star.classList.add("star");
+    star.innerHTML = i <= selectedRating ? "★" : "☆";
+
+    star.onclick = ()=>{
+      selectedRating = i;
+      setupStars();
+    };
+
+    container.appendChild(star);
   }
-
-  render(selectedRating);
-
-  stars.onclick = (e)=>{
-    const rect = stars.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    const starWidth = rect.width / 5;
-    selectedRating = Math.max(1, Math.ceil(x / starWidth));
-    render(selectedRating);
-  };
 }
 
 setupStars();
@@ -215,12 +220,12 @@ function saveMeal(){
     saveMeals();
     renderMeals();
 
-    document.getElementById("name").value = "";
-    document.getElementById("ingredients").value = "";
-    document.getElementById("recipe").value = "";
-    document.getElementById("date").value = "";
-    document.getElementById("photo").value = "";
-    document.getElementById("tag").selectedIndex = 0;
+    document.getElementById("name").value="";
+    document.getElementById("ingredients").value="";
+    document.getElementById("recipe").value="";
+    document.getElementById("date").value="";
+    document.getElementById("photo").value="";
+    document.getElementById("tag").selectedIndex=0;
 
     selectedRating = 5;
     setupStars();
@@ -251,57 +256,53 @@ function toggleFavorite(name){
 
 /* RANDOM */
 function randomMeal(){
-
   const box = document.getElementById("randomBox");
 
-  if(meals.length === 0){
-    box.innerHTML = "<p>Add some meals first!</p>";
+  if(meals.length===0){
+    box.innerHTML="<p>Add some meals first!</p>";
     return;
   }
 
-  const meal = meals[Math.floor(Math.random() * meals.length)];
+  const meal = meals[Math.floor(Math.random()*meals.length)];
 
-  box.innerHTML = `
+  box.innerHTML=`
     <div class="card">
       <h3>🎲 Tonight's Pick: ${meal.name}</h3>
       ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
       <p><span class="tag">${meal.tag}</span></p>
-      <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
+      <p>${"⭐".repeat(Number(meal.rating||0))}</p>
     </div>
   `;
 }
 
-/* RENDER + FAVORITES FIRST */
+/* RENDER + FAVORITES FIRST + GLOW */
 function renderMeals(){
 
-  const searchText = document.getElementById("search").value.toLowerCase();
-  const mealsContainer = document.getElementById("meals");
+  const q = document.getElementById("search").value.toLowerCase();
+  const box = document.getElementById("meals");
 
-  mealsContainer.innerHTML = "";
+  box.innerHTML="";
 
-  if(meals.length === 0){
-    mealsContainer.innerHTML = `
+  if(meals.length===0){
+    box.innerHTML=`
       <div class="card">
         <h3>🍝 No meals yet</h3>
-        <p>Add your first dish to start your cookbook 💛</p>
+        <p>Add your first dish 💛</p>
       </div>
     `;
     return;
   }
 
-  const sortedMeals = [...meals].sort((a,b)=> (b.favorite === true) - (a.favorite === true));
+  const sorted = [...meals].sort((a,b)=> (b.favorite===true)-(a.favorite===true));
 
-  sortedMeals.forEach((meal)=>{
+  sorted.forEach(meal=>{
 
-    if(
-      !meal.name.toLowerCase().includes(searchText) &&
-      !meal.tag.toLowerCase().includes(searchText)
-    ){
+    if(!meal.name.toLowerCase().includes(q) && !meal.tag.toLowerCase().includes(q)){
       return;
     }
 
-    mealsContainer.innerHTML += `
-      <div class="card">
+    box.innerHTML+=`
+      <div class="card ${meal.favorite ? "favorite-glow" : ""}">
 
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <h3>${meal.name}</h3>
@@ -315,7 +316,7 @@ function renderMeals(){
 
         <p><span class="tag">${meal.tag}</span></p>
 
-        <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
+        <p>${"⭐".repeat(Number(meal.rating||0))}</p>
 
         <p><strong>Last cooked:</strong> ${meal.date || "Unknown"}</p>
 
@@ -331,6 +332,5 @@ function renderMeals(){
 renderMeals();
 
 </script>
-
 </body>
 </html>
