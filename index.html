@@ -122,103 +122,143 @@ button{
 <script>
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
 
-function saveMeals(){
- localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
+function saveMeals() {
+  localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-function saveMeal(){
- const file = document.getElementById("photo").files[0];
+function saveMeal() {
+  const file = document.getElementById("photo").files[0];
 
- const mealData = {
-   name: name.value,
-   tag: tag.value,
-   rating: rating.value,
-   date: date.value,
-   ingredients: ingredients.value,
-   recipe: recipe.value,
-   favorite:false
- };
+  const mealData = {
+    name: document.getElementById("name").value.trim(),
+    tag: document.getElementById("tag").value,
+    rating: document.getElementById("rating").value,
+    date: document.getElementById("date").value,
+    ingredients: document.getElementById("ingredients").value,
+    recipe: document.getElementById("recipe").value,
+    favorite: false
+  };
 
- if(!mealData.name){
-   alert("Please enter a meal name.");
-   return;
- }
+  if (!mealData.name) {
+    alert("Please enter a meal name.");
+    return;
+  }
 
- const reader = new FileReader();
+  const saveAndRender = () => {
+    meals.unshift(mealData);
+    saveMeals();
+    renderMeals();
 
- reader.onload = e=>{
-   mealData.photo = e.target.result;
-   meals.unshift(mealData);
-   saveMeals();
-   renderMeals();
-   document.querySelectorAll("input, textarea").forEach(el=>{
-     if(el.type !== "file") el.value="";
-   });
-   tag.selectedIndex=0;
-   rating.value=5;
-   photo.value="";
- };
+    document.getElementById("name").value = "";
+    document.getElementById("ingredients").value = "";
+    document.getElementById("recipe").value = "";
+    document.getElementById("date").value = "";
+    document.getElementById("photo").value = "";
+    document.getElementById("tag").selectedIndex = 0;
+    document.getElementById("rating").value = 5;
+  };
 
- if(file){
-   reader.readAsDataURL(file);
- } else {
-   reader.onload({target:{result:""}});
- }
+  if (file) {
+    const reader = new FileReader();
+
+    reader.onload = function(e) {
+      mealData.photo = e.target.result;
+      saveAndRender();
+    };
+
+    reader.readAsDataURL(file);
+  } else {
+    mealData.photo = "";
+    saveAndRender();
+  }
 }
 
-function toggleFavorite(index){
- meals[index].favorite = !meals[index].favorite;
- saveMeals();
- renderMeals();
+function toggleFavorite(index) {
+  meals[index].favorite = !meals[index].favorite;
+  saveMeals();
+  renderMeals();
 }
 
-function randomMeal(){
- if(meals.length===0){
-   randomBox.innerHTML="<p>Add some meals first!</p>";
-   return;
- }
- const meal = meals[Math.floor(Math.random()*meals.length)];
- randomBox.innerHTML = `
-   <div class="card">
-     <h3>🎲 Tonight's Pick: ${meal.name}</h3>
-     ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
-     <p><span class="tag">${meal.tag}</span></p>
-     <p>${"⭐".repeat(meal.rating)}</p>
-   </div>
- `;
+function randomMeal() {
+  const randomBox = document.getElementById("randomBox");
+
+  if (meals.length === 0) {
+    randomBox.innerHTML = "<p>Add some meals first!</p>";
+    return;
+  }
+
+  const meal = meals[Math.floor(Math.random() * meals.length)];
+
+  randomBox.innerHTML = `
+    <div class="card">
+      <h3>🎲 Tonight's Pick: ${meal.name}</h3>
+      ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+      <p><span class="tag">${meal.tag}</span></p>
+      <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
+    </div>
+  `;
 }
 
-function renderMeals(){
- const q = search.value.toLowerCase();
- meals.innerHTML = "";
+function renderMeals() {
+  const searchText =
+    document.getElementById("search").value.toLowerCase();
 
- JSON.parse(localStorage.getItem("maggiesCookbook") || "[]");
+  const mealsContainer =
+    document.getElementById("meals");
 
- window.meals.forEach((meal,index)=>{
-   if(
-      !meal.name.toLowerCase().includes(q) &&
-      !meal.tag.toLowerCase().includes(q)
-   ) return;
+  mealsContainer.innerHTML = "";
 
-   meals.innerHTML += `
-   <div class="card">
-     <div style="display:flex;justify-content:space-between;">
-       <h3>${meal.name}</h3>
-       <span class="favorite" onclick="toggleFavorite(${index})">
-         ${meal.favorite ? "❤️" : "🤍"}
-       </span>
-     </div>
+  meals.forEach((meal, index) => {
 
-     ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+    if (
+      !meal.name.toLowerCase().includes(searchText) &&
+      !meal.tag.toLowerCase().includes(searchText)
+    ) {
+      return;
+    }
 
-     <p><span class="tag">${meal.tag}</span></p>
-     <p>${"⭐".repeat(meal.rating)}</p>
-     <p><strong>Last cooked:</strong> ${meal.date || "Unknown"}</p>
-     <p><strong>Ingredients</strong><br>${meal.ingredients}</p>
-     <p><strong>Recipe</strong><br>${meal.recipe}</p>
-   </div>`;
- });
+    mealsContainer.innerHTML += `
+      <div class="card">
+
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <h3>${meal.name}</h3>
+
+          <span
+            class="favorite"
+            onclick="toggleFavorite(${index})"
+          >
+            ${meal.favorite ? "❤️" : "🤍"}
+          </span>
+        </div>
+
+        ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
+
+        <p>
+          <span class="tag">${meal.tag}</span>
+        </p>
+
+        <p>${"⭐".repeat(Number(meal.rating || 0))}</p>
+
+        <p>
+          <strong>Last cooked:</strong>
+          ${meal.date || "Unknown"}
+        </p>
+
+        <p>
+          <strong>Ingredients</strong><br>
+          ${meal.ingredients || ""}
+        </p>
+
+        <p>
+          <strong>Recipe</strong><br>
+          ${meal.recipe || ""}
+        </p>
+
+      </div>
+    `;
+  });
 }
+
 renderMeals();
 </script>
 </body>
