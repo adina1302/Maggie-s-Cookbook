@@ -22,119 +22,89 @@
   --accent:#C65D2E;
 }
 
-/* =======================
-   BACKGROUND + BLOBS
-======================= */
+/* 🌙 DARK MODE */
+body.dark{
+  --bg:#1e1c1a;
+  --card:#2a2623;
+  --text:#f5f1ec;
+  --muted:#b9b2aa;
+}
+
+/* BACKGROUND */
 body{
   margin:0;
   font-family:"Inter", sans-serif;
   background:var(--bg);
   color:var(--text);
   padding-bottom:80px;
+  transition:0.3s;
   overflow-x:hidden;
 }
 
-/* soft blobs */
-.bg-blobs{
-  position:fixed;
-  inset:0;
-  z-index:-1;
-  overflow:hidden;
-}
-
+/* BLOBS */
+.bg-blobs{position:fixed;inset:0;z-index:-1;}
 .blob{
   position:absolute;
   width:340px;
   height:340px;
   border-radius:50%;
   filter:blur(70px);
-  opacity:0.22;
-  mix-blend-mode:multiply;
+  opacity:0.2;
   animation:float 24s ease-in-out infinite;
 }
-
-.b1{
-  background:#f2c6a0;
-  top:-100px;
-  left:-80px;
-}
-
-.b2{
-  background:#e8a87c;
-  bottom:-120px;
-  right:-90px;
-  animation-duration:28s;
-}
-
-.b3{
-  background:#f7d6bf;
-  top:40%;
-  left:60%;
-  animation-duration:32s;
-}
+.b1{background:#f2c6a0;top:-100px;left:-80px;}
+.b2{background:#e8a87c;bottom:-120px;right:-90px;}
+.b3{background:#f7d6bf;top:40%;left:60%;}
 
 @keyframes float{
-  0%{transform:translate(0,0) scale(1);}
-  25%{transform:translate(40px,-60px) scale(1.05);}
-  50%{transform:translate(-30px,40px) scale(0.95);}
-  75%{transform:translate(60px,20px) scale(1.1);}
-  100%{transform:translate(0,0) scale(1);}
+  0%{transform:translate(0,0);}
+  50%{transform:translate(40px,-60px);}
+  100%{transform:translate(0,0);}
 }
 
-/* =======================
-   HEADER
-======================= */
+/* HEADER */
 .hero{
   background:linear-gradient(135deg,var(--accent),#e07b4f);
   color:white;
-  padding:26px;
+  padding:22px;
   text-align:center;
   border-radius:0 0 24px 24px;
+  position:relative;
 }
 
-/* =======================
-   PAGES
-======================= */
-.page{
-  display:none;
-  padding:14px;
-  animation:fade 0.25s ease;
+/* 🌙 toggle */
+.toggle{
+  position:absolute;
+  right:12px;
+  top:12px;
+  cursor:pointer;
 }
 
-.page.active{
-  display:block;
+/* MY MEALS TITLE */
+.section-title{
+  padding:12px 14px 0;
+  font-weight:600;
+  font-size:16px;
 }
 
-@keyframes fade{
-  from{opacity:0; transform:translateY(10px);}
-  to{opacity:1; transform:translateY(0);}
-}
-
-/* =======================
-   PINTEREST GRID
-======================= */
+/* GRID */
 .grid{
   column-count:2;
   column-gap:12px;
+  padding:14px;
 }
 
 .pin{
   break-inside:avoid;
   margin-bottom:12px;
-  background:white;
+  background:var(--card);
   border-radius:18px;
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
   cursor:pointer;
-  transition:0.2s;
 }
 
-.pin:active{transform:scale(0.98);}
-
-.pin img{
-  width:100%;
-  display:block;
-}
+.pin img{width:100%;display:block;}
 
 .pin-title{
   padding:10px;
@@ -147,9 +117,7 @@ body{
   color:var(--muted);
 }
 
-/* =======================
-   INPUTS
-======================= */
+/* INPUTS */
 input,textarea,select{
   width:100%;
   padding:12px;
@@ -158,9 +126,7 @@ input,textarea,select{
   border:1px solid rgba(0,0,0,0.1);
 }
 
-/* =======================
-   BUTTONS
-======================= */
+/* BUTTONS */
 button{
   width:100%;
   padding:12px;
@@ -174,9 +140,7 @@ button{
 .secondary{background:#eee;}
 .danger{background:#d64545;color:white;}
 
-/* =======================
-   NAV
-======================= */
+/* NAV */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -188,21 +152,12 @@ button{
   display:flex;
   justify-content:space-around;
   align-items:center;
-  box-shadow:0 -6px 20px rgba(0,0,0,0.08);
 }
 
-.nav-item{
-  color:var(--muted);
-  cursor:pointer;
-}
+.nav-item{color:var(--muted);cursor:pointer;}
+.nav-item.active{color:var(--accent);}
 
-.nav-item.active{
-  color:var(--accent);
-}
-
-/* =======================
-   FAB
-======================= */
+/* FAB */
 .fab{
   position:fixed;
   bottom:90px;
@@ -218,9 +173,7 @@ button{
   cursor:pointer;
 }
 
-/* =======================
-   MODAL
-======================= */
+/* MODAL */
 .modal{
   position:fixed;
   inset:0;
@@ -230,7 +183,7 @@ button{
 }
 
 .modal-content{
-  background:white;
+  background:var(--card);
   width:100%;
   max-height:90%;
   border-radius:20px 20px 0 0;
@@ -242,31 +195,42 @@ button{
 
 <body>
 
-<!-- 🌿 BACKGROUND BLOBS -->
+<!-- 🌿 BLOBS -->
 <div class="bg-blobs">
   <div class="blob b1"></div>
   <div class="blob b2"></div>
   <div class="blob b3"></div>
 </div>
 
-<!-- HEADER -->
+<!-- HERO -->
 <div class="hero">
   <h1>Maggie's Cookbook</h1>
   <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
+
+  <div class="toggle" onclick="toggleDark()">
+    <i data-lucide="moon"></i>
+  </div>
 </div>
 
 <!-- HOME -->
-<div id="home" class="page active">
+<div id="home">
+  <div class="section-title">🍽 My Meals</div>
   <div id="grid" class="grid"></div>
 </div>
 
-<!-- ADD PAGE -->
-<div id="add" class="page">
+<!-- ADD -->
+<div id="add" class="page" style="display:none;padding:14px;">
   <h2>Add Recipe</h2>
 
   <input id="name" placeholder="Name">
-  <input id="ingredients" placeholder="Ingredients">
+
+  <!-- ⭐ STARS -->
+  <p>Rating</p>
+  <div id="stars"></div>
+
   <input id="lastCooked" type="date">
+
+  <input id="ingredients" placeholder="Ingredients">
 
   <select id="likedBy">
     <option>Both</option>
@@ -280,9 +244,6 @@ button{
   <button class="primary" onclick="saveMeal()">Save</button>
 </div>
 
-<!-- FAVORITES -->
-<div id="fav" class="page"></div>
-
 <!-- FAB -->
 <div class="fab" onclick="showAdd()">
   <i data-lucide="plus"></i>
@@ -290,9 +251,8 @@ button{
 
 <!-- NAV -->
 <div class="bottom-nav">
-  <div class="nav-item" onclick="showHome()"><i data-lucide="home"></i></div>
-  <div class="nav-item" onclick="showFav()"><i data-lucide="heart"></i></div>
-  <div class="nav-item" onclick="exportData()"><i data-lucide="download"></i></div>
+  <div onclick="showHome()"><i data-lucide="home"></i></div>
+  <div onclick="exportData()"><i data-lucide="download"></i></div>
 </div>
 
 <!-- MODAL -->
@@ -304,64 +264,44 @@ button{
 
 let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
 let selected = null;
+let rating = 5;
 
+/* SAVE */
 function saveMeals(){
   localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* NAV */
-function showPage(id){
-  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+/* DARK MODE */
+function toggleDark(){
+  document.body.classList.toggle("dark");
 }
 
+/* PAGE */
 function showHome(){
-  showPage("home");
+  document.getElementById("home").style.display="block";
+  document.getElementById("add").style.display="none";
   renderHome();
 }
 
-function showFav(){
-  showPage("fav");
-  renderFav();
-}
-
 function showAdd(){
-  showPage("add");
+  document.getElementById("home").style.display="none";
+  document.getElementById("add").style.display="block";
+  renderStars();
 }
 
-/* HOME */
-function renderHome(){
-  const grid=document.getElementById("grid");
-  grid.innerHTML="";
+/* ⭐ STARS */
+function renderStars(){
+  const el=document.getElementById("stars");
+  el.innerHTML="";
 
-  meals.forEach(m=>{
-    grid.innerHTML+=`
-      <div class="pin" onclick="openMeal(${m.id})">
-        ${m.photo?`<img src="${m.photo}">`:""}
-        <div class="pin-title">${m.name}</div>
-        <div class="pin-meta">❤️ ${m.likedBy}</div>
-      </div>
-    `;
-  });
-
-  lucide.createIcons();
-}
-
-/* FAVORITES */
-function renderFav(){
-  const fav=meals.filter(m=>m.favorite);
-  const box=document.getElementById("fav");
-
-  box.innerHTML="<h2>Favorites</h2>";
-
-  fav.forEach(m=>{
-    box.innerHTML+=`
-      <div class="pin" onclick="openMeal(${m.id})">
-        ${m.photo?`<img src="${m.photo}">`:""}
-        <div class="pin-title">${m.name}</div>
-      </div>
-    `;
-  });
+  for(let i=1;i<=5;i++){
+    const s=document.createElement("span");
+    s.innerHTML = i<=rating ? "⭐" : "☆";
+    s.style.fontSize="22px";
+    s.style.cursor="pointer";
+    s.onclick=()=>{rating=i; renderStars();};
+    el.appendChild(s);
+  }
 }
 
 /* SAVE */
@@ -375,6 +315,7 @@ function saveMeal(){
     recipe:document.getElementById("recipe").value,
     likedBy:document.getElementById("likedBy").value,
     lastCooked:document.getElementById("lastCooked").value,
+    rating:rating,
     favorite:false
   };
 
@@ -382,16 +323,35 @@ function saveMeal(){
     meals.unshift(meal);
     saveMeals();
     showHome();
-    renderHome();
   };
 
   if(file){
     const r=new FileReader();
     r.onload=e=>{meal.photo=e.target.result; finish();};
     r.readAsDataURL(file);
-  } else {
-    finish();
-  }
+  } else finish();
+}
+
+/* HOME */
+function renderHome(){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+
+  meals.forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin" onclick="openMeal(${m.id})">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+        <div class="pin-meta">
+          ❤️ ${m.likedBy}<br>
+          ⭐ ${m.rating || 0}/5<br>
+          📅 ${m.lastCooked || "No date"}
+        </div>
+      </div>
+    `;
+  });
+
+  lucide.createIcons();
 }
 
 /* OPEN */
@@ -400,15 +360,17 @@ function openMeal(id){
 
   document.getElementById("viewContent").innerHTML=`
     <h2>${selected.name}</h2>
+
     ${selected.photo?`<img src="${selected.photo}" style="width:100%;border-radius:12px;">`:""}
 
     <p><b>Ingredients:</b><br>${selected.ingredients}</p>
     <p><b>Recipe:</b><br>${selected.recipe}</p>
+
     <p><b>Liked by:</b> ${selected.likedBy}</p>
     <p><b>Last cooked:</b> ${selected.lastCooked}</p>
+    <p><b>Rating:</b> ⭐ ${selected.rating}</p>
 
-    <button class="primary" onclick="toggleFav()">❤️ Favorite</button>
-    <button class="danger" onclick="deleteMeal()">🗑️ Delete</button>
+    <button class="danger" onclick="deleteMeal()">Delete</button>
     <button class="secondary" onclick="closeView()">Close</button>
   `;
 
@@ -419,14 +381,7 @@ function closeView(){
   document.getElementById("view").style.display="none";
 }
 
-/* ACTIONS */
-function toggleFav(){
-  selected.favorite=!selected.favorite;
-  saveMeals();
-  renderHome();
-  closeView();
-}
-
+/* DELETE */
 function deleteMeal(){
   if(!confirm("Delete this recipe?")) return;
   meals=meals.filter(m=>m.id!==selected.id);
@@ -446,6 +401,7 @@ function exportData(){
 }
 
 /* INIT */
+renderStars();
 renderHome();
 lucide.createIcons();
 
