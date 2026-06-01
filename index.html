@@ -629,17 +629,20 @@ function initApp(){
   renderStars();
   renderHome();
 
-  // hide loader AFTER everything is ready
   const loader = document.getElementById("loader");
-  loader.style.opacity = "0";
-  loader.style.transition = "0.5s";
+  if (!loader) return;
 
   setTimeout(() => {
-    loader.style.display = "none";
-  }, 500);
+    loader.style.opacity = "0";
+
+    setTimeout(() => {
+      loader.style.display = "none";
+    }, 500);
+
+  }, 800);
 }
 
-initApp();
+window.addEventListener("load", initApp);
 </script>
 
 </body>
