@@ -27,23 +27,18 @@ body{
   padding-bottom:90px;
 }
 
-/* HEADER */
+/* HERO */
 .hero{
   background:linear-gradient(135deg,var(--burnt),#d97a4d);
   color:white;
   padding:22px;
-  border-radius:0 0 24px 24px;
   text-align:center;
+  border-radius:0 0 24px 24px;
 }
 
-/* PAGES */
-.view{display:none;animation:fade .25s ease;}
+/* VIEWS */
+.view{display:none;}
 .view.active{display:block;}
-
-@keyframes fade{
-  from{opacity:0;transform:translateY(8px);}
-  to{opacity:1;transform:translateY(0);}
-}
 
 /* PINTEREST GRID */
 .grid{
@@ -59,8 +54,7 @@ body{
   border-radius:16px;
   overflow:hidden;
   box-shadow:0 4px 12px rgba(0,0,0,.08);
-  cursor:pointer;
-  position:relative;
+  cursor:grab;
 }
 
 .pin img{
@@ -71,6 +65,23 @@ body{
 .pin-title{
   padding:10px;
   font-weight:600;
+}
+
+/* CARD */
+.card{
+  background:white;
+  margin:14px;
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #ddd;
 }
 
 /* BUTTONS */
@@ -84,7 +95,7 @@ button{
 
 .primary{background:var(--burnt);color:white;}
 
-/* BOTTOM NAV */
+/* NAV */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -110,7 +121,7 @@ button{
   font-weight:700;
 }
 
-/* FLOATING ADD BUTTON */
+/* FLOATING BUTTON */
 .fab{
   position:fixed;
   bottom:85px;
@@ -120,30 +131,14 @@ button{
   border-radius:50%;
   background:var(--burnt);
   color:white;
-  font-size:28px;
+  font-size:30px;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   box-shadow:0 8px 20px rgba(0,0,0,.2);
   cursor:pointer;
 }
 
-/* ADD FORM */
-.card{
-  background:white;
-  margin:14px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
-}
-
-input,textarea,select{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid #ddd;
-}
 </style>
 </head>
 
@@ -166,6 +161,7 @@ input,textarea,select{
     <h2>➕ Add Recipe</h2>
 
     <input id="name" placeholder="Meal name">
+
     <select id="tag">
       <option>Breakfast</option>
       <option>Lunch</option>
@@ -193,12 +189,12 @@ input,textarea,select{
 <!-- SURPRISE -->
 <div id="surprise" class="view">
   <div class="card">
-    <button class="primary" onclick="randomMeal()">🎲 Pick for me</button>
+    <button class="primary" onclick="randomMeal()">🎲 Surprise me</button>
     <div id="randomBox"></div>
   </div>
 </div>
 
-<!-- FLOATING BUTTON -->
+<!-- FLOATING + BUTTON -->
 <div class="fab" onclick="switchView('add')">+</div>
 
 <!-- BOTTOM NAV -->
@@ -219,64 +215,105 @@ function saveMeals(){
 
 /* SWITCH VIEW */
 function switchView(id){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+}
 
-  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-
-  renderAll();
+/* UNIQUE ID */
+function makeId(){
+  return Date.now().toString();
 }
 
 /* SAVE MEAL */
 function saveMeal(){
-  const file=document.getElementById("photo").files[0];
+  const file = document.getElementById("photo").files[0];
 
-  const meal={
-    name:document.getElementById("name").value,
-    tag:document.getElementById("tag").value,
-    ingredients:document.getElementById("ingredients").value,
-    recipe:document.getElementById("recipe").value,
+  const meal = {
+    id: makeId(),
+    name: document.getElementById("name").value,
+    tag: document.getElementById("tag").value,
+    ingredients: document.getElementById("ingredients").value,
+    recipe: document.getElementById("recipe").value,
     favorite:false
   };
 
-  if(!meal.name) return alert("Add name");
+  if(!meal.name) return alert("Add a name!");
 
-  const finish=()=>{
+  const finish = () => {
     meals.unshift(meal);
     saveMeals();
+    renderAll();
     switchView("home");
   };
 
   if(file){
-    const r=new FileReader();
-    r.onload=e=>{meal.photo=e.target.result;finish();}
+    const r = new FileReader();
+    r.onload = e => {
+      meal.photo = e.target.result;
+      finish();
+    };
     r.readAsDataURL(file);
   } else {
-    meal.photo="";
+    meal.photo = "";
     finish();
   }
 }
 
-/* TOGGLE FAVORITE */
-function toggleFav(name){
-  const m=meals.find(x=>x.name===name);
-  m.favorite=!m.favorite;
+/* DELETE */
+function deleteMeal(id){
+  if(!confirm("Delete this recipe? 💔")) return;
+  meals = meals.filter(m => m.id !== id);
   saveMeals();
   renderAll();
 }
 
-/* PINTEREST GRID HOME */
-function renderHome(){
-  const grid=document.getElementById("grid");
-  grid.innerHTML="";
+/* EDIT */
+function editMeal(id){
+  const m = meals.find(x => x.id === id);
+  if(!m) return;
 
-  meals.forEach(m=>{
-    grid.innerHTML+=`
-      <div class="pin" onclick="toggleFav('${m.name}')">
-        ${m.photo?`<img src="${m.photo}">`:""}
-        <div class="pin-title">
-          ${m.name} ${m.favorite?"❤️":""}
+  document.getElementById("name").value = m.name;
+  document.getElementById("tag").value = m.tag;
+  document.getElementById("ingredients").value = m.ingredients;
+  document.getElementById("recipe").value = m.recipe;
+
+  meals = meals.filter(x => x.id !== id);
+  saveMeals();
+
+  switchView("add");
+}
+
+/* FAVORITE */
+function toggleFav(id){
+  const m = meals.find(x => x.id === id);
+  if(!m) return;
+  m.favorite = !m.favorite;
+  saveMeals();
+  renderAll();
+}
+
+/* HOME GRID (PINTEREST STYLE) */
+function renderHome(){
+  const grid = document.getElementById("grid");
+  grid.innerHTML = "";
+
+  meals.forEach(m => {
+
+    grid.innerHTML += `
+      <div class="pin">
+
+        <div onclick="toggleFav('${m.id}')">
+          ${m.photo ? `<img src="${m.photo}">` : ""}
+          <div class="pin-title">
+            ${m.name} ${m.favorite ? "❤️" : ""}
+          </div>
         </div>
+
+        <div style="display:flex;justify-content:space-between;padding:8px;">
+          <small onclick="editMeal('${m.id}')">✏️</small>
+          <small onclick="deleteMeal('${m.id}')" style="color:#C65D2E;">🗑️</small>
+        </div>
+
       </div>
     `;
   });
@@ -284,13 +321,13 @@ function renderHome(){
 
 /* FAVORITES */
 function renderFav(){
-  const grid=document.getElementById("favGrid");
-  grid.innerHTML="";
+  const grid = document.getElementById("favGrid");
+  grid.innerHTML = "";
 
-  meals.filter(m=>m.favorite).forEach(m=>{
-    grid.innerHTML+=`
+  meals.filter(m => m.favorite).forEach(m => {
+    grid.innerHTML += `
       <div class="pin">
-        ${m.photo?`<img src="${m.photo}">`:""}
+        ${m.photo ? `<img src="${m.photo}">` : ""}
         <div class="pin-title">${m.name}</div>
       </div>
     `;
@@ -299,20 +336,20 @@ function renderFav(){
 
 /* RANDOM */
 function randomMeal(){
-  const box=document.getElementById("randomBox");
+  const box = document.getElementById("randomBox");
   if(!meals.length) return;
 
-  const m=meals[Math.floor(Math.random()*meals.length)];
+  const m = meals[Math.floor(Math.random()*meals.length)];
 
-  box.innerHTML=`
+  box.innerHTML = `
     <div class="card">
       <h3>🎲 ${m.name}</h3>
-      ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:12px;">`:""}
+      ${m.photo ? `<img src="${m.photo}" style="width:100%;border-radius:12px;">` : ""}
     </div>
   `;
 }
 
-/* RENDER ALL */
+/* RENDER EVERYTHING */
 function renderAll(){
   renderHome();
   renderFav();
@@ -323,4 +360,5 @@ renderAll();
 </script>
 
 </body>
+</html>
 </html>
