@@ -67,11 +67,23 @@ button{
 }
 
 .primary{background:var(--burnt);color:white;}
-.secondary{background:var(--sage);color:white;transition:0.2s;}
+.secondary{
+  background:var(--sage);
+  color:white;
+  transition:0.2s;
+}
 
 .secondary:hover{
   transform:scale(1.05);
   opacity:0.9;
+}
+
+/* ACTIVE FILTER */
+.filter-active{
+  background:var(--burnt) !important;
+  color:white !important;
+  transform:scale(1.05);
+  box-shadow:0 6px 14px rgba(198,93,46,0.25);
 }
 
 .meal-img{
@@ -103,14 +115,14 @@ button{
   gap:14px;
 }
 
-/* ❤️ FAVORITE GLOW */
+/* FAVORITE GLOW */
 .favorite-glow{
   box-shadow:0 6px 20px rgba(198,93,46,0.25);
   border:1px solid rgba(198,93,46,0.25);
   transform:scale(1.01);
 }
 
-/* ⭐ STAR SYSTEM */
+/* STARS */
 .star-container{
   display:flex;
   gap:6px;
@@ -118,11 +130,9 @@ button{
   cursor:pointer;
   user-select:none;
 }
-
 .star{
   transition:0.15s;
 }
-
 .star:hover{
   transform:scale(1.2);
 }
@@ -133,62 +143,60 @@ button{
 
 <div class="container">
 
-<div class="hero">
-<h1>🍳 Maggie's Cookbook</h1>
-<p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
-</div>
+  <div class="hero">
+    <h1>🍳 Maggie's Cookbook</h1>
+    <p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
+  </div>
 
-<!-- SEARCH + RANDOM -->
-<div class="card">
-<input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+  <!-- SEARCH -->
+  <div class="card">
+    <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+    <button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
+    <div id="randomBox"></div>
+  </div>
 
-<button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
+  <!-- FILTER -->
+  <div class="card">
+    <p><strong>Filter by meal type</strong></p>
 
-<div id="randomBox"></div>
-</div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="secondary" id="filter-All" onclick="setFilter('All')">All</button>
+      <button class="secondary" id="filter-Breakfast" onclick="setFilter('Breakfast')">Breakfast</button>
+      <button class="secondary" id="filter-Lunch" onclick="setFilter('Lunch')">Lunch</button>
+      <button class="secondary" id="filter-Dinner" onclick="setFilter('Dinner')">Dinner</button>
+      <button class="secondary" id="filter-Dessert" onclick="setFilter('Dessert')">Dessert</button>
+    </div>
+  </div>
 
-<!-- FILTER -->
-<div class="card">
-<p><strong>Filter by meal type</strong></p>
+  <!-- ADD MEAL -->
+  <div class="card">
+    <h2>Add a Meal 💛</h2>
 
-<div style="display:flex;gap:8px;flex-wrap:wrap;">
-  <button class="secondary" onclick="setFilter('All')">All</button>
-  <button class="secondary" onclick="setFilter('Breakfast')">Breakfast</button>
-  <button class="secondary" onclick="setFilter('Lunch')">Lunch</button>
-  <button class="secondary" onclick="setFilter('Dinner')">Dinner</button>
-  <button class="secondary" onclick="setFilter('Dessert')">Dessert</button>
-</div>
-</div>
+    <input id="name" placeholder="Meal name">
 
-<!-- ADD MEAL -->
-<div class="card">
-<h2>Add a Meal 💛</h2>
+    <select id="tag">
+      <option>Breakfast</option>
+      <option>Lunch</option>
+      <option>Dinner</option>
+      <option>Dessert</option>
+    </select>
 
-<input id="name" placeholder="Meal name">
+    <p>Rating</p>
+    <div id="stars" class="star-container"></div>
 
-<select id="tag">
-<option>Breakfast</option>
-<option>Lunch</option>
-<option>Dinner</option>
-<option>Dessert</option>
-</select>
+    <input id="date" type="date">
 
-<p>Rating</p>
-<div id="stars" class="star-container"></div>
+    <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
 
-<input id="date" type="date">
+    <textarea id="recipe" placeholder="Recipe"></textarea>
 
-<textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
+    <input id="photo" type="file" accept="image/*">
 
-<textarea id="recipe" placeholder="Recipe"></textarea>
+    <button class="primary" onclick="saveMeal()">Save Meal</button>
+  </div>
 
-<input id="photo" type="file" accept="image/*">
-
-<button class="primary" onclick="saveMeal()">Save Meal</button>
-</div>
-
-<!-- MEALS -->
-<div id="meals" class="grid"></div>
+  <!-- MEALS -->
+  <div id="meals" class="grid"></div>
 
 </div>
 
@@ -202,7 +210,7 @@ function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* ⭐ STAR SYSTEM */
+/* ⭐ STARS */
 function setupStars(){
   const container = document.getElementById("stars");
   container.innerHTML = "";
@@ -226,6 +234,16 @@ setupStars();
 /* FILTER */
 function setFilter(type){
   currentFilter = type;
+
+  document.querySelectorAll(".secondary").forEach(btn=>{
+    btn.classList.remove("filter-active");
+  });
+
+  const activeBtn = document.getElementById("filter-" + type);
+  if(activeBtn){
+    activeBtn.classList.add("filter-active");
+  }
+
   renderMeals();
 }
 
@@ -280,7 +298,7 @@ function saveMeal(){
 
 /* FAVORITES */
 function toggleFavorite(name){
-  const meal = meals.find(m=>m.name===name);
+  const meal = meals.find(m => m.name === name);
   if(!meal) return;
 
   meal.favorite = !meal.favorite;
@@ -293,14 +311,14 @@ function randomMeal(){
 
   const box = document.getElementById("randomBox");
 
-  if(meals.length===0){
-    box.innerHTML="<p>Add some meals first!</p>";
+  if(meals.length === 0){
+    box.innerHTML = "<p>Add some meals first!</p>";
     return;
   }
 
   const meal = meals[Math.floor(Math.random()*meals.length)];
 
-  box.innerHTML=`
+  box.innerHTML = `
     <div class="card">
       <h3>🎲 Tonight's Pick: ${meal.name}</h3>
       ${meal.photo ? `<img class="meal-img" src="${meal.photo}">` : ""}
@@ -316,9 +334,9 @@ function renderMeals(){
   const q = document.getElementById("search").value.toLowerCase();
   const box = document.getElementById("meals");
 
-  box.innerHTML="";
+  box.innerHTML = "";
 
-  if(meals.length===0){
+  if(meals.length === 0){
     box.innerHTML=`
       <div class="card">
         <h3>🍝 No meals yet</h3>
@@ -343,7 +361,7 @@ function renderMeals(){
       return;
     }
 
-    box.innerHTML+=`
+    box.innerHTML += `
       <div class="card ${meal.favorite ? "favorite-glow" : ""}">
 
         <div style="display:flex;justify-content:space-between;align-items:center;">
