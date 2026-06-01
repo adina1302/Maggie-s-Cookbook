@@ -30,7 +30,6 @@ body.dark{
   --muted:#b9b2aa;
 }
 
-/* BACKGROUND */
 body{
   margin:0;
   font-family:"Inter", sans-serif;
@@ -41,7 +40,28 @@ body{
   overflow-x:hidden;
 }
 
-/* BLOBS */
+/* 🌿 SPLASH */
+#splash{
+  position:fixed;
+  inset:0;
+  background:linear-gradient(135deg,#C65D2E,#e07b4f);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-direction:column;
+  z-index:9999;
+  color:white;
+  animation:fadeOut 0.6s ease 2.2s forwards;
+}
+
+.splash-content{text-align:center;animation:pop 1s ease;}
+.logo{font-size:48px;animation:bounce 1.2s infinite;}
+
+@keyframes pop{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
+@keyframes bounce{50%{transform:translateY(-8px);}}
+@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
+
+/* 🌿 BLOBS */
 .bg-blobs{position:fixed;inset:0;z-index:-1;}
 .blob{
   position:absolute;
@@ -72,7 +92,6 @@ body{
   position:relative;
 }
 
-/* 🌙 toggle */
 .toggle{
   position:absolute;
   right:12px;
@@ -80,11 +99,10 @@ body{
   cursor:pointer;
 }
 
-/* MY MEALS TITLE */
+/* TITLE */
 .section-title{
   padding:12px 14px 0;
   font-weight:600;
-  font-size:16px;
 }
 
 /* GRID */
@@ -106,10 +124,7 @@ body{
 
 .pin img{width:100%;display:block;}
 
-.pin-title{
-  padding:10px;
-  font-weight:600;
-}
+.pin-title{padding:10px;font-weight:600;}
 
 .pin-meta{
   padding:0 10px 10px;
@@ -195,6 +210,15 @@ button{
 
 <body>
 
+<!-- 🌟 SPLASH -->
+<div id="splash">
+  <div class="splash-content">
+    <div class="logo">🍳</div>
+    <h1>Maggie's Cookbook</h1>
+    <p>Made with love by Adina ❤️</p>
+  </div>
+</div>
+
 <!-- 🌿 BLOBS -->
 <div class="bg-blobs">
   <div class="blob b1"></div>
@@ -202,14 +226,12 @@ button{
   <div class="blob b3"></div>
 </div>
 
-<!-- HERO -->
+<!-- HEADER -->
 <div class="hero">
   <h1>Maggie's Cookbook</h1>
   <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
 
-  <div class="toggle" onclick="toggleDark()">
-    <i data-lucide="moon"></i>
-  </div>
+  <div class="toggle" onclick="toggleDark()">🌙</div>
 </div>
 
 <!-- HOME -->
@@ -219,17 +241,15 @@ button{
 </div>
 
 <!-- ADD -->
-<div id="add" class="page" style="display:none;padding:14px;">
+<div id="add" style="display:none;padding:14px;">
   <h2>Add Recipe</h2>
 
   <input id="name" placeholder="Name">
 
-  <!-- ⭐ STARS -->
   <p>Rating</p>
   <div id="stars"></div>
 
   <input id="lastCooked" type="date">
-
   <input id="ingredients" placeholder="Ingredients">
 
   <select id="likedBy">
@@ -245,14 +265,12 @@ button{
 </div>
 
 <!-- FAB -->
-<div class="fab" onclick="showAdd()">
-  <i data-lucide="plus"></i>
-</div>
+<div class="fab" onclick="showAdd()">+</div>
 
 <!-- NAV -->
 <div class="bottom-nav">
-  <div onclick="showHome()"><i data-lucide="home"></i></div>
-  <div onclick="exportData()"><i data-lucide="download"></i></div>
+  <div onclick="showHome()">🏠</div>
+  <div onclick="exportData()">⬇️</div>
 </div>
 
 <!-- MODAL -->
@@ -263,20 +281,26 @@ button{
 <script>
 
 let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
-let selected = null;
-let rating = 5;
+let selected=null;
+let rating=5;
+
+/* SPLASH REMOVE */
+setTimeout(()=>{
+  const s=document.getElementById("splash");
+  if(s) s.remove();
+},2400);
 
 /* SAVE */
 function saveMeals(){
   localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* DARK MODE */
+/* DARK */
 function toggleDark(){
   document.body.classList.toggle("dark");
 }
 
-/* PAGE */
+/* NAV */
 function showHome(){
   document.getElementById("home").style.display="block";
   document.getElementById("add").style.display="none";
@@ -293,13 +317,11 @@ function showAdd(){
 function renderStars(){
   const el=document.getElementById("stars");
   el.innerHTML="";
-
   for(let i=1;i<=5;i++){
     const s=document.createElement("span");
-    s.innerHTML = i<=rating ? "⭐" : "☆";
+    s.innerHTML=i<=rating?"⭐":"☆";
     s.style.fontSize="22px";
-    s.style.cursor="pointer";
-    s.onclick=()=>{rating=i; renderStars();};
+    s.onclick=()=>{rating=i;renderStars();};
     el.appendChild(s);
   }
 }
@@ -327,7 +349,7 @@ function saveMeal(){
 
   if(file){
     const r=new FileReader();
-    r.onload=e=>{meal.photo=e.target.result; finish();};
+    r.onload=e=>{meal.photo=e.target.result;finish();};
     r.readAsDataURL(file);
   } else finish();
 }
@@ -344,14 +366,12 @@ function renderHome(){
         <div class="pin-title">${m.name}</div>
         <div class="pin-meta">
           ❤️ ${m.likedBy}<br>
-          ⭐ ${m.rating || 0}/5<br>
-          📅 ${m.lastCooked || "No date"}
+          ⭐ ${m.rating}/5<br>
+          📅 ${m.lastCooked||""}
         </div>
       </div>
     `;
   });
-
-  lucide.createIcons();
 }
 
 /* OPEN */
@@ -366,12 +386,10 @@ function openMeal(id){
     <p><b>Ingredients:</b><br>${selected.ingredients}</p>
     <p><b>Recipe:</b><br>${selected.recipe}</p>
 
-    <p><b>Liked by:</b> ${selected.likedBy}</p>
-    <p><b>Last cooked:</b> ${selected.lastCooked}</p>
     <p><b>Rating:</b> ⭐ ${selected.rating}</p>
 
     <button class="danger" onclick="deleteMeal()">Delete</button>
-    <button class="secondary" onclick="closeView()">Close</button>
+    <button onclick="closeView()">Close</button>
   `;
 
   document.getElementById("view").style.display="flex";
@@ -381,9 +399,8 @@ function closeView(){
   document.getElementById("view").style.display="none";
 }
 
-/* DELETE */
 function deleteMeal(){
-  if(!confirm("Delete this recipe?")) return;
+  if(!confirm("Delete?")) return;
   meals=meals.filter(m=>m.id!==selected.id);
   saveMeals();
   renderHome();
@@ -403,7 +420,6 @@ function exportData(){
 /* INIT */
 renderStars();
 renderHome();
-lucide.createIcons();
 
 </script>
 
