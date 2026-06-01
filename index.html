@@ -16,45 +16,74 @@
   --burnt:#C65D2E;
   --cream:#F8F2E7;
   --sage:#A7B89A;
-  --text:#4A3428;
+  --text:#3E2C22;
+  --card:#ffffff;
+  --shadow:0 10px 30px rgba(0,0,0,0.08);
 }
+
+*{box-sizing:border-box}
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;
   background:var(--cream);
   color:var(--text);
   padding-bottom:90px;
+  -webkit-font-smoothing:antialiased;
 }
 
-/* HERO */
+/* HEADER */
 .hero{
-  background:linear-gradient(135deg,var(--burnt),#d97a4d);
+  background:linear-gradient(135deg,var(--burnt),#e07b4f);
   color:white;
-  padding:22px;
+  padding:28px 20px;
   text-align:center;
-  border-radius:0 0 24px 24px;
+  border-radius:0 0 28px 28px;
+  box-shadow:var(--shadow);
+}
+
+.hero h1{
+  margin:0;
+  font-size:26px;
+  font-weight:700;
+}
+
+.hero p{
+  margin-top:6px;
+  opacity:0.9;
+  font-size:14px;
 }
 
 /* VIEWS */
 .view{display:none;}
-.view.active{display:block;}
+.view.active{display:block;animation:fade .25s ease;}
 
-/* PINTEREST GRID */
-.grid{
-  columns:2 160px;
-  column-gap:12px;
-  padding:12px;
+@keyframes fade{
+  from{opacity:0;transform:translateY(6px);}
+  to{opacity:1;transform:translateY(0);}
 }
 
+/* PINTEREST GRID (more premium spacing) */
+.grid{
+  columns:2 160px;
+  column-gap:14px;
+  padding:14px;
+}
+
+/* CARD (Pinterest pin) */
 .pin{
   break-inside:avoid;
-  margin-bottom:12px;
-  background:white;
-  border-radius:16px;
+  margin-bottom:14px;
+  background:var(--card);
+  border-radius:18px;
   overflow:hidden;
-  box-shadow:0 4px 12px rgba(0,0,0,.08);
-  cursor:grab;
+  box-shadow:var(--shadow);
+  cursor:pointer;
+  transition:transform .15s ease, box-shadow .15s ease;
+}
+
+.pin:active{
+  transform:scale(0.98);
 }
 
 .pin img{
@@ -63,71 +92,68 @@ body{
 }
 
 .pin-title{
-  padding:10px;
+  padding:10px 12px 4px;
   font-weight:600;
+  font-size:14px;
 }
 
-/* CARD */
+.pin-actions{
+  display:flex;
+  justify-content:space-between;
+  padding:8px 12px 12px;
+  font-size:13px;
+  opacity:0.85;
+}
+
+/* INPUT CARD */
 .card{
-  background:white;
-  margin:14px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
+  background:var(--card);
+  margin:16px;
+  padding:16px;
+  border-radius:18px;
+  box-shadow:var(--shadow);
 }
 
 input,textarea,select{
   width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:10px;
-  border:1px solid #ddd;
+  padding:12px;
+  margin:8px 0;
+  border-radius:12px;
+  border:1px solid #eee;
+  font-size:14px;
+  outline:none;
+}
+
+input:focus,textarea:focus,select:focus{
+  border-color:var(--burnt);
 }
 
 /* BUTTONS */
 button{
   border:none;
-  border-radius:12px;
-  padding:10px 14px;
+  border-radius:14px;
+  padding:12px 14px;
   font-weight:600;
   cursor:pointer;
+  transition:transform .15s ease, opacity .15s ease;
 }
 
-.primary{background:var(--burnt);color:white;}
-
-/* NAV */
-.bottom-nav{
-  position:fixed;
-  bottom:0;
-  left:0;
-  right:0;
-  height:70px;
-  background:white;
-  display:flex;
-  justify-content:space-around;
-  align-items:center;
-  box-shadow:0 -4px 14px rgba(0,0,0,.1);
+button:active{
+  transform:scale(0.98);
 }
 
-.nav-item{
-  font-size:12px;
-  text-align:center;
-  color:#666;
-  cursor:pointer;
+.primary{
+  background:var(--burnt);
+  color:white;
 }
 
-.nav-item.active{
-  color:var(--burnt);
-  font-weight:700;
-}
-
-/* FLOATING BUTTON */
+/* FLOATING BUTTON (more iOS-like) */
 .fab{
   position:fixed;
-  bottom:85px;
+  bottom:92px;
   right:18px;
-  width:58px;
-  height:58px;
+  width:56px;
+  height:56px;
   border-radius:50%;
   background:var(--burnt);
   color:white;
@@ -135,8 +161,38 @@ button{
   display:flex;
   justify-content:center;
   align-items:center;
-  box-shadow:0 8px 20px rgba(0,0,0,.2);
+  box-shadow:0 10px 25px rgba(0,0,0,0.2);
   cursor:pointer;
+}
+
+/* BOTTOM NAV (iOS glass style) */
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:72px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  border-top:1px solid rgba(0,0,0,0.05);
+}
+
+.nav-item{
+  font-size:12px;
+  color:#777;
+  text-align:center;
+  cursor:pointer;
+  transition:all .15s ease;
+}
+
+.nav-item.active{
+  color:var(--burnt);
+  transform:translateY(-1px);
+  font-weight:600;
 }
 
 </style>
@@ -158,7 +214,7 @@ button{
 <!-- ADD -->
 <div id="add" class="view">
   <div class="card">
-    <h2>➕ Add Recipe</h2>
+    <h2 style="margin:0 0 10px;">Add Recipe</h2>
 
     <input id="name" placeholder="Meal name">
 
@@ -181,7 +237,7 @@ button{
 <!-- FAVORITES -->
 <div id="fav" class="view">
   <div class="card">
-    <h2>❤️ Favorites</h2>
+    <h2 style="margin:0 0 10px;">❤️ Favorites</h2>
     <div id="favGrid" class="grid"></div>
   </div>
 </div>
@@ -194,10 +250,10 @@ button{
   </div>
 </div>
 
-<!-- FLOATING + BUTTON -->
+<!-- FAB -->
 <div class="fab" onclick="switchView('add')">+</div>
 
-<!-- BOTTOM NAV -->
+<!-- NAV -->
 <div class="bottom-nav">
   <div class="nav-item active" onclick="switchView('home')">🏠</div>
   <div class="nav-item" onclick="switchView('fav')">❤️</div>
@@ -208,38 +264,35 @@ button{
 
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
 
-/* SAVE */
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* SWITCH VIEW */
+/* VIEW SWITCH */
 function switchView(id){
-  document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
+
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
-/* UNIQUE ID */
-function makeId(){
-  return Date.now().toString();
-}
-
-/* SAVE MEAL */
+/* SAVE */
 function saveMeal(){
-  const file = document.getElementById("photo").files[0];
+  const file=document.getElementById("photo").files[0];
 
-  const meal = {
-    id: makeId(),
-    name: document.getElementById("name").value,
-    tag: document.getElementById("tag").value,
-    ingredients: document.getElementById("ingredients").value,
-    recipe: document.getElementById("recipe").value,
+  const meal={
+    id:Date.now(),
+    name:document.getElementById("name").value,
+    tag:document.getElementById("tag").value,
+    ingredients:document.getElementById("ingredients").value,
+    recipe:document.getElementById("recipe").value,
     favorite:false
   };
 
-  if(!meal.name) return alert("Add a name!");
+  if(!meal.name) return alert("Add a name 💛");
 
-  const finish = () => {
+  const finish=()=>{
     meals.unshift(meal);
     saveMeals();
     renderAll();
@@ -247,73 +300,40 @@ function saveMeal(){
   };
 
   if(file){
-    const r = new FileReader();
-    r.onload = e => {
-      meal.photo = e.target.result;
+    const r=new FileReader();
+    r.onload=e=>{
+      meal.photo=e.target.result;
       finish();
     };
     r.readAsDataURL(file);
   } else {
-    meal.photo = "";
+    meal.photo="";
     finish();
   }
 }
 
-/* DELETE */
-function deleteMeal(id){
-  if(!confirm("Delete this recipe? 💔")) return;
-  meals = meals.filter(m => m.id !== id);
-  saveMeals();
-  renderAll();
-}
-
-/* EDIT */
-function editMeal(id){
-  const m = meals.find(x => x.id === id);
-  if(!m) return;
-
-  document.getElementById("name").value = m.name;
-  document.getElementById("tag").value = m.tag;
-  document.getElementById("ingredients").value = m.ingredients;
-  document.getElementById("recipe").value = m.recipe;
-
-  meals = meals.filter(x => x.id !== id);
-  saveMeals();
-
-  switchView("add");
-}
-
 /* FAVORITE */
 function toggleFav(id){
-  const m = meals.find(x => x.id === id);
-  if(!m) return;
-  m.favorite = !m.favorite;
+  const m=meals.find(x=>x.id===id);
+  m.favorite=!m.favorite;
   saveMeals();
   renderAll();
 }
 
-/* HOME GRID (PINTEREST STYLE) */
+/* HOME */
 function renderHome(){
-  const grid = document.getElementById("grid");
-  grid.innerHTML = "";
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
 
-  meals.forEach(m => {
-
-    grid.innerHTML += `
-      <div class="pin">
-
-        <div onclick="toggleFav('${m.id}')">
-          ${m.photo ? `<img src="${m.photo}">` : ""}
-          <div class="pin-title">
-            ${m.name} ${m.favorite ? "❤️" : ""}
-          </div>
+  meals.forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin" onclick="toggleFav(${m.id})">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+        <div class="pin-actions">
+          <span>${m.tag}</span>
+          <span>${m.favorite?"❤️":"🤍"}</span>
         </div>
-
-        <div style="display:flex;justify-content:space-between;padding:8px;">
-          <small onclick="editMeal('${m.id}')">✏️</small>
-          <small onclick="deleteMeal('${m.id}')" style="color:#C65D2E;">🗑️</small>
-        </div>
-
       </div>
     `;
   });
@@ -321,13 +341,13 @@ function renderHome(){
 
 /* FAVORITES */
 function renderFav(){
-  const grid = document.getElementById("favGrid");
-  grid.innerHTML = "";
+  const grid=document.getElementById("favGrid");
+  grid.innerHTML="";
 
-  meals.filter(m => m.favorite).forEach(m => {
-    grid.innerHTML += `
+  meals.filter(m=>m.favorite).forEach(m=>{
+    grid.innerHTML+=`
       <div class="pin">
-        ${m.photo ? `<img src="${m.photo}">` : ""}
+        ${m.photo?`<img src="${m.photo}">`:""}
         <div class="pin-title">${m.name}</div>
       </div>
     `;
@@ -336,20 +356,20 @@ function renderFav(){
 
 /* RANDOM */
 function randomMeal(){
-  const box = document.getElementById("randomBox");
+  const box=document.getElementById("randomBox");
   if(!meals.length) return;
 
-  const m = meals[Math.floor(Math.random()*meals.length)];
+  const m=meals[Math.floor(Math.random()*meals.length)];
 
-  box.innerHTML = `
+  box.innerHTML=`
     <div class="card">
-      <h3>🎲 ${m.name}</h3>
-      ${m.photo ? `<img src="${m.photo}" style="width:100%;border-radius:12px;">` : ""}
+      <h3>${m.name}</h3>
+      ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:12px;">`:""}
     </div>
   `;
 }
 
-/* RENDER EVERYTHING */
+/* RENDER */
 function renderAll(){
   renderHome();
   renderFav();
@@ -360,5 +380,4 @@ renderAll();
 </script>
 
 </body>
-</html>
 </html>
