@@ -10,7 +10,6 @@
 
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Maggie's Cookbook">
 
 <link rel="apple-touch-icon" href="icon.png">
 
@@ -23,13 +22,12 @@
   --card:#FFFFFF;
 }
 
-*{box-sizing:border-box}
-
 body{
   margin:0;
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--cream);
   color:var(--text);
+  padding-bottom:80px;
 }
 
 .container{
@@ -46,8 +44,6 @@ body{
   text-align:center;
   box-shadow:0 6px 20px rgba(0,0,0,.12);
 }
-
-.subtitle{opacity:.95;margin-top:8px}
 
 .card{
   background:var(--card);
@@ -75,7 +71,12 @@ button{
 }
 
 .primary{background:var(--burnt);color:white;}
-.secondary{background:var(--sage);color:white;}
+
+.grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:14px;
+}
 
 .meal-img{
   width:100%;
@@ -94,34 +95,42 @@ button{
   font-size:12px;
 }
 
-.favorite{
-  font-size:22px;
-  cursor:pointer;
+.favorite{font-size:22px;cursor:pointer;}
+
+.bottom-nav{
+  position:fixed;
+  bottom:0;
+  left:0;
+  right:0;
+  height:70px;
+  background:white;
+  display:flex;
+  justify-content:space-around;
+  align-items:center;
+  box-shadow:0 -4px 12px rgba(0,0,0,.1);
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
 }
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
+.nav-item{
+  text-align:center;
+  font-size:12px;
+  cursor:pointer;
+  color:#666;
 }
+
+.nav-item.active{
+  color:var(--burnt);
+  font-weight:700;
+}
+
+.view{display:none;}
+.view.active{display:block;}
 
 .favorite-glow{
   box-shadow:0 6px 20px rgba(198,93,46,0.25);
-  border:1px solid rgba(198,93,46,0.25);
-  transform:scale(1.01);
 }
 
-.star-container{
-  display:flex;
-  gap:6px;
-  font-size:26px;
-  cursor:pointer;
-}
-
-@keyframes fadeIn {
-  from {opacity:0; transform:translateY(10px);}
-  to {opacity:1; transform:translateY(0);}
-}
 </style>
 </head>
 
@@ -129,36 +138,25 @@ button{
 
 <div class="container">
 
-  <!-- HERO (restored your original text) -->
-  <div class="hero">
-    <h1>🍳 Maggie's Cookbook</h1>
-    <p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
-  </div>
+  <!-- HOME VIEW -->
+  <div id="home" class="view active">
 
-  <!-- SEARCH -->
-  <div class="card">
-    <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
-    <button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
-    <div id="randomBox"></div>
-  </div>
-
-  <!-- FILTER -->
-  <div class="card">
-    <p><strong>Filter meals</strong></p>
-    <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="secondary" onclick="setFilter('All')">All</button>
-      <button class="secondary" onclick="setFilter('Breakfast')">Breakfast</button>
-      <button class="secondary" onclick="setFilter('Lunch')">Lunch</button>
-      <button class="secondary" onclick="setFilter('Dinner')">Dinner</button>
-      <button class="secondary" onclick="setFilter('Dessert')">Dessert</button>
+    <div class="hero">
+      <h1>🍳 Maggie's Cookbook</h1>
+      <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
     </div>
+
+    <div class="card">
+      <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+    </div>
+
+    <div id="meals" class="grid"></div>
   </div>
 
-  <!-- ADD MEAL (popup style) -->
-  <div class="card">
-    <button class="primary" onclick="toggleAddMeal()">➕ Add a new recipe</button>
-
-    <div id="addMealForm" style="display:none;margin-top:12px;">
+  <!-- ADD VIEW -->
+  <div id="add" class="view">
+    <div class="card">
+      <h2>➕ Add Recipe</h2>
 
       <input id="name" placeholder="Meal name">
 
@@ -169,13 +167,7 @@ button{
         <option>Dessert</option>
       </select>
 
-      <p>Rating ⭐</p>
-      <div id="stars" class="star-container"></div>
-
-      <input id="date" type="date">
-
       <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
-
       <textarea id="recipe" placeholder="👩‍🍳 Recipe"></textarea>
 
       <input id="photo" type="file" accept="image/*">
@@ -184,45 +176,51 @@ button{
     </div>
   </div>
 
-  <!-- MEALS -->
-  <div id="meals" class="grid"></div>
+  <!-- FAVORITES VIEW -->
+  <div id="fav" class="view">
+    <div class="card">
+      <h2>❤️ Favorites</h2>
+      <div id="favList" class="grid"></div>
+    </div>
+  </div>
 
+  <!-- SURPRISE VIEW -->
+  <div id="surprise" class="view">
+    <div class="card">
+      <button class="primary" onclick="randomMeal()">🎲 Pick for me</button>
+      <div id="randomBox"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="switchView('home')">🏠<br>Home</div>
+  <div class="nav-item" onclick="switchView('add')">➕<br>Add</div>
+  <div class="nav-item" onclick="switchView('surprise')">🎲<br>Surprise</div>
+  <div class="nav-item" onclick="switchView('fav')">❤️<br>Favs</div>
 </div>
 
 <script>
 
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
-let selectedRating = 5;
-let currentFilter = "All";
 
 /* save */
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* toggle form */
-function toggleAddMeal(){
-  const f = document.getElementById("addMealForm");
-  f.style.display = f.style.display === "none" ? "block" : "none";
-}
+/* switch tabs */
+function switchView(id){
+  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
 
-/* stars */
-function setupStars(){
-  const c = document.getElementById("stars");
-  c.innerHTML="";
-  for(let i=1;i<=5;i++){
-    const s=document.createElement("span");
-    s.innerHTML = i<=selectedRating?"★":"☆";
-    s.onclick=()=>{selectedRating=i;setupStars();}
-    c.appendChild(s);
-  }
-}
-setupStars();
+  document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
+  event.target.classList.add("active");
 
-/* filter */
-function setFilter(type){
-  currentFilter=type;
-  renderMeals();
+  if(id==="fav") renderFav();
+  if(id==="home") renderMeals();
 }
 
 /* save meal */
@@ -230,24 +228,19 @@ function saveMeal(){
   const file=document.getElementById("photo").files[0];
 
   const meal={
-    name:document.getElementById("name").value.trim(),
+    name:document.getElementById("name").value,
     tag:document.getElementById("tag").value,
-    rating:selectedRating,
-    date:document.getElementById("date").value,
     ingredients:document.getElementById("ingredients").value,
     recipe:document.getElementById("recipe").value,
     favorite:false
   };
 
-  if(!meal.name) return alert("Add a name!");
+  if(!meal.name) return alert("Add name");
 
   const finish=()=>{
     meals.unshift(meal);
     saveMeals();
-    renderMeals();
-    toggleAddMeal();
-    selectedRating=5;
-    setupStars();
+    alert("Saved 💛");
   };
 
   if(file){
@@ -260,65 +253,69 @@ function saveMeal(){
   }
 }
 
-/* favorite */
-function toggleFavorite(name){
+/* render meals */
+function renderMeals(){
+  const box=document.getElementById("meals");
+  const q=document.getElementById("search")?.value?.toLowerCase()||"";
+
+  box.innerHTML="";
+
+  meals.forEach(m=>{
+    if(!m.name.toLowerCase().includes(q)) return;
+
+    box.innerHTML+=`
+      <div class="card ${m.favorite?"favorite-glow":""}">
+        <div style="display:flex;justify-content:space-between;">
+          <h3>${m.name}</h3>
+          <span onclick="toggleFav('${m.name}')">${m.favorite?"❤️":"🤍"}</span>
+        </div>
+
+        ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
+
+        <p>${m.tag}</p>
+        <p>${m.ingredients}</p>
+        <p>${m.recipe}</p>
+      </div>
+    `;
+  });
+}
+
+/* fav */
+function toggleFav(name){
   const m=meals.find(x=>x.name===name);
-  if(!m) return;
   m.favorite=!m.favorite;
   saveMeals();
   renderMeals();
 }
 
+/* favorites */
+function renderFav(){
+  const box=document.getElementById("favList");
+  box.innerHTML="";
+
+  meals.filter(m=>m.favorite).forEach(m=>{
+    box.innerHTML+=`
+      <div class="card">
+        <h3>${m.name}</h3>
+        ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
+      </div>
+    `;
+  });
+}
+
 /* random */
 function randomMeal(){
   const box=document.getElementById("randomBox");
-  if(!meals.length) return box.innerHTML="Add meals first 💛";
+  if(!meals.length) return;
 
   const m=meals[Math.floor(Math.random()*meals.length)];
 
   box.innerHTML=`
     <div class="card">
-      <h3>🎲 Try: ${m.name}</h3>
+      <h3>🎲 ${m.name}</h3>
       ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
-      <p>${"⭐".repeat(m.rating||0)}</p>
     </div>
   `;
-}
-
-/* render */
-function renderMeals(){
-  const q=document.getElementById("search").value.toLowerCase();
-  const box=document.getElementById("meals");
-
-  box.innerHTML="";
-
-  const sorted=[...meals].sort((a,b)=>(b.favorite)-(a.favorite));
-
-  sorted.forEach(m=>{
-    if(!m.name.toLowerCase().includes(q)&&!m.tag.toLowerCase().includes(q)) return;
-    if(currentFilter!=="All"&&m.tag!==currentFilter) return;
-
-    box.innerHTML+=`
-      <div class="card ${m.favorite?"favorite-glow":""}" style="animation:fadeIn .3s;">
-
-        <div style="display:flex;justify-content:space-between;">
-          <h3>${m.name}</h3>
-          <span class="favorite" onclick="toggleFavorite('${m.name}')">
-            ${m.favorite?"❤️":"🤍"}
-          </span>
-        </div>
-
-        ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
-
-        <span class="tag">${m.tag}</span>
-
-        <p>${"⭐".repeat(m.rating||0)}</p>
-
-        <p>🥕 ${m.ingredients||""}</p>
-        <p>👩‍🍳 ${m.recipe||""}</p>
-      </div>
-    `;
-  });
 }
 
 renderMeals();
