@@ -35,31 +35,10 @@ body{
   font-family:"Inter", sans-serif;
   background:var(--bg);
   color:var(--text);
-  padding-bottom:80px;
+  padding-bottom:90px;
   transition:0.3s;
   overflow-x:hidden;
 }
-
-/* 🌿 SPLASH */
-#splash{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#C65D2E,#e07b4f);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  z-index:9999;
-  color:white;
-  animation:fadeOut 0.6s ease 2.2s forwards;
-}
-
-.splash-content{text-align:center;animation:pop 1s ease;}
-.logo{font-size:48px;animation:bounce 1.2s infinite;}
-
-@keyframes pop{from{opacity:0;transform:scale(0.8);}to{opacity:1;transform:scale(1);}}
-@keyframes bounce{50%{transform:translateY(-8px);}}
-@keyframes fadeOut{to{opacity:0;visibility:hidden;}}
 
 /* 🌿 BLOBS */
 .bg-blobs{position:fixed;inset:0;z-index:-1;}
@@ -92,11 +71,38 @@ body{
   position:relative;
 }
 
-.toggle{
+/* 🌙 TOGGLE SWITCH */
+.switch{
   position:absolute;
-  right:12px;
-  top:12px;
+  right:14px;
+  top:14px;
+  width:46px;
+  height:26px;
+}
+.switch input{display:none;}
+.slider{
+  position:absolute;
+  inset:0;
+  background:rgba(255,255,255,0.35);
+  border-radius:999px;
   cursor:pointer;
+}
+.slider:before{
+  content:"";
+  position:absolute;
+  width:20px;
+  height:20px;
+  left:3px;
+  top:3px;
+  background:white;
+  border-radius:50%;
+  transition:0.3s;
+}
+.switch input:checked + .slider{
+  background:#2b2a28;
+}
+.switch input:checked + .slider:before{
+  transform:translateX(20px);
 }
 
 /* TITLE */
@@ -161,21 +167,34 @@ button{
   bottom:0;
   left:0;
   right:0;
-  height:72px;
-  background:rgba(255,255,255,0.9);
-  backdrop-filter:blur(12px);
+  height:78px;
+  background:rgba(255,255,255,0.85);
+  backdrop-filter:blur(14px);
   display:flex;
   justify-content:space-around;
   align-items:center;
+  border-top:1px solid rgba(0,0,0,0.05);
 }
 
-.nav-item{color:var(--muted);cursor:pointer;}
-.nav-item.active{color:var(--accent);}
+.nav-item{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  font-size:11px;
+  gap:4px;
+  color:var(--muted);
+  cursor:pointer;
+}
+
+.nav-item i{
+  width:22px;
+  height:22px;
+}
 
 /* FAB */
 .fab{
   position:fixed;
-  bottom:90px;
+  bottom:95px;
   right:18px;
   width:56px;
   height:56px;
@@ -186,6 +205,7 @@ button{
   align-items:center;
   justify-content:center;
   cursor:pointer;
+  font-size:22px;
 }
 
 /* MODAL */
@@ -210,15 +230,6 @@ button{
 
 <body>
 
-<!-- 🌟 SPLASH -->
-<div id="splash">
-  <div class="splash-content">
-    <div class="logo">🍳</div>
-    <h1>Maggie's Cookbook</h1>
-    <p>Made with love by Adina ❤️</p>
-  </div>
-</div>
-
 <!-- 🌿 BLOBS -->
 <div class="bg-blobs">
   <div class="blob b1"></div>
@@ -231,7 +242,11 @@ button{
   <h1>Maggie's Cookbook</h1>
   <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
 
-  <div class="toggle" onclick="toggleDark()">🌙</div>
+  <!-- 🌙 toggle -->
+  <label class="switch">
+    <input type="checkbox" onchange="toggleDark(this)">
+    <span class="slider"></span>
+  </label>
 </div>
 
 <!-- HOME -->
@@ -267,10 +282,24 @@ button{
 <!-- FAB -->
 <div class="fab" onclick="showAdd()">+</div>
 
-<!-- NAV -->
+<!-- 🧭 TASKBAR (RESTORED + FAVORITES) -->
 <div class="bottom-nav">
-  <div onclick="showHome()">🏠</div>
-  <div onclick="exportData()">⬇️</div>
+
+  <div class="nav-item" onclick="showHome()">
+    <i data-lucide="home"></i>
+    <span>Home</span>
+  </div>
+
+  <div class="nav-item" onclick="showFav()">
+    <i data-lucide="heart"></i>
+    <span>Favorites</span>
+  </div>
+
+  <div class="nav-item" onclick="exportData()">
+    <i data-lucide="download"></i>
+    <span>Backup</span>
+  </div>
+
 </div>
 
 <!-- MODAL -->
@@ -284,20 +313,14 @@ let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
 let selected=null;
 let rating=5;
 
-/* SPLASH REMOVE */
-setTimeout(()=>{
-  const s=document.getElementById("splash");
-  if(s) s.remove();
-},2400);
-
 /* SAVE */
 function saveMeals(){
   localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* DARK */
-function toggleDark(){
-  document.body.classList.toggle("dark");
+/* 🌙 DARK MODE */
+function toggleDark(el){
+  document.body.classList.toggle("dark", el.checked);
 }
 
 /* NAV */
@@ -305,6 +328,26 @@ function showHome(){
   document.getElementById("home").style.display="block";
   document.getElementById("add").style.display="none";
   renderHome();
+}
+
+function showFav(){
+  const fav = meals.filter(m=>m.favorite);
+  const grid=document.getElementById("grid");
+
+  grid.innerHTML="";
+
+  fav.forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin" onclick="openMeal(${m.id})">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+        <div class="pin-meta">❤️ Favorite</div>
+      </div>
+    `;
+  });
+
+  document.getElementById("home").style.display="block";
+  document.getElementById("add").style.display="none";
 }
 
 function showAdd(){
@@ -321,6 +364,7 @@ function renderStars(){
     const s=document.createElement("span");
     s.innerHTML=i<=rating?"⭐":"☆";
     s.style.fontSize="22px";
+    s.style.cursor="pointer";
     s.onclick=()=>{rating=i;renderStars();};
     el.appendChild(s);
   }
@@ -372,6 +416,8 @@ function renderHome(){
       </div>
     `;
   });
+
+  lucide.createIcons();
 }
 
 /* OPEN */
@@ -399,6 +445,7 @@ function closeView(){
   document.getElementById("view").style.display="none";
 }
 
+/* DELETE */
 function deleteMeal(){
   if(!confirm("Delete?")) return;
   meals=meals.filter(m=>m.id!==selected.id);
