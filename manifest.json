@@ -1,0 +1,16 @@
+{
+  "name": "Maggie's Cookbook",
+  "short_name": "Cookbook",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#F8F2E7",
+  "theme_color": "#C65D2E",
+  "description": "A private cookbook for Maggie 💛",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
