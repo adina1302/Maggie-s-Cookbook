@@ -16,21 +16,74 @@
 <style>
 :root{
   --bg:#F8F2E7;
-  --card:#fff;
+  --card:#ffffff;
   --text:#2d2a26;
   --muted:#7a736b;
   --accent:#C65D2E;
 }
 
+/* =======================
+   BACKGROUND + BLOBS
+======================= */
 body{
   margin:0;
   font-family:"Inter", sans-serif;
   background:var(--bg);
   color:var(--text);
   padding-bottom:80px;
+  overflow-x:hidden;
 }
 
-/* HEADER */
+/* soft blobs */
+.bg-blobs{
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  overflow:hidden;
+}
+
+.blob{
+  position:absolute;
+  width:340px;
+  height:340px;
+  border-radius:50%;
+  filter:blur(70px);
+  opacity:0.22;
+  mix-blend-mode:multiply;
+  animation:float 24s ease-in-out infinite;
+}
+
+.b1{
+  background:#f2c6a0;
+  top:-100px;
+  left:-80px;
+}
+
+.b2{
+  background:#e8a87c;
+  bottom:-120px;
+  right:-90px;
+  animation-duration:28s;
+}
+
+.b3{
+  background:#f7d6bf;
+  top:40%;
+  left:60%;
+  animation-duration:32s;
+}
+
+@keyframes float{
+  0%{transform:translate(0,0) scale(1);}
+  25%{transform:translate(40px,-60px) scale(1.05);}
+  50%{transform:translate(-30px,40px) scale(0.95);}
+  75%{transform:translate(60px,20px) scale(1.1);}
+  100%{transform:translate(0,0) scale(1);}
+}
+
+/* =======================
+   HEADER
+======================= */
 .hero{
   background:linear-gradient(135deg,var(--accent),#e07b4f);
   color:white;
@@ -39,7 +92,9 @@ body{
   border-radius:0 0 24px 24px;
 }
 
-/* PAGES */
+/* =======================
+   PAGES
+======================= */
 .page{
   display:none;
   padding:14px;
@@ -55,7 +110,9 @@ body{
   to{opacity:1; transform:translateY(0);}
 }
 
-/* PINTEREST GRID */
+/* =======================
+   PINTEREST GRID
+======================= */
 .grid{
   column-count:2;
   column-gap:12px;
@@ -69,10 +126,14 @@ body{
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
   cursor:pointer;
+  transition:0.2s;
 }
+
+.pin:active{transform:scale(0.98);}
 
 .pin img{
   width:100%;
+  display:block;
 }
 
 .pin-title{
@@ -86,7 +147,9 @@ body{
   color:var(--muted);
 }
 
-/* INPUTS */
+/* =======================
+   INPUTS
+======================= */
 input,textarea,select{
   width:100%;
   padding:12px;
@@ -95,7 +158,9 @@ input,textarea,select{
   border:1px solid rgba(0,0,0,0.1);
 }
 
-/* BUTTONS */
+/* =======================
+   BUTTONS
+======================= */
 button{
   width:100%;
   padding:12px;
@@ -106,10 +171,12 @@ button{
 }
 
 .primary{background:var(--accent);color:white;}
-.danger{background:#d64545;color:white;}
 .secondary{background:#eee;}
+.danger{background:#d64545;color:white;}
 
-/* NAV */
+/* =======================
+   NAV
+======================= */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -133,7 +200,9 @@ button{
   color:var(--accent);
 }
 
-/* FAB */
+/* =======================
+   FAB
+======================= */
 .fab{
   position:fixed;
   bottom:90px;
@@ -149,7 +218,9 @@ button{
   cursor:pointer;
 }
 
-/* RECIPE VIEW */
+/* =======================
+   MODAL
+======================= */
 .modal{
   position:fixed;
   inset:0;
@@ -171,6 +242,13 @@ button{
 
 <body>
 
+<!-- 🌿 BACKGROUND BLOBS -->
+<div class="bg-blobs">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+
 <!-- HEADER -->
 <div class="hero">
   <h1>Maggie's Cookbook</h1>
@@ -182,7 +260,7 @@ button{
   <div id="grid" class="grid"></div>
 </div>
 
-<!-- ADD PAGE (FULL SCREEN NOW) -->
+<!-- ADD PAGE -->
 <div id="add" class="page">
   <h2>Add Recipe</h2>
 
@@ -205,7 +283,7 @@ button{
 <!-- FAVORITES -->
 <div id="fav" class="page"></div>
 
-<!-- FLOAT BUTTON -->
+<!-- FAB -->
 <div class="fab" onclick="showAdd()">
   <i data-lucide="plus"></i>
 </div>
@@ -217,7 +295,7 @@ button{
   <div class="nav-item" onclick="exportData()"><i data-lucide="download"></i></div>
 </div>
 
-<!-- RECIPE MODAL -->
+<!-- MODAL -->
 <div class="modal" id="view">
   <div class="modal-content" id="viewContent"></div>
 </div>
@@ -316,13 +394,12 @@ function saveMeal(){
   }
 }
 
-/* OPEN RECIPE */
+/* OPEN */
 function openMeal(id){
   selected=meals.find(m=>m.id===id);
 
   document.getElementById("viewContent").innerHTML=`
     <h2>${selected.name}</h2>
-
     ${selected.photo?`<img src="${selected.photo}" style="width:100%;border-radius:12px;">`:""}
 
     <p><b>Ingredients:</b><br>${selected.ingredients}</p>
@@ -331,7 +408,6 @@ function openMeal(id){
     <p><b>Last cooked:</b> ${selected.lastCooked}</p>
 
     <button class="primary" onclick="toggleFav()">❤️ Favorite</button>
-    <button class="secondary" onclick="editMeal()">✏️ Edit</button>
     <button class="danger" onclick="deleteMeal()">🗑️ Delete</button>
     <button class="secondary" onclick="closeView()">Close</button>
   `;
@@ -357,18 +433,6 @@ function deleteMeal(){
   saveMeals();
   renderHome();
   closeView();
-}
-
-function editMeal(){
-  document.getElementById("name").value=selected.name;
-  document.getElementById("ingredients").value=selected.ingredients;
-  document.getElementById("recipe").value=selected.recipe;
-  document.getElementById("likedBy").value=selected.likedBy;
-  document.getElementById("lastCooked").value=selected.lastCooked;
-
-  deleteMeal();
-  closeView();
-  showAdd();
 }
 
 /* BACKUP */
