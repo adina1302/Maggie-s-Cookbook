@@ -312,6 +312,7 @@ button{
 let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
 let selected=null;
 let rating=5;
+let editingId=null;
 
 /* SAVE */
 function saveMeals(){
@@ -372,6 +373,27 @@ function renderStars(){
 
 /* SAVE */
 function saveMeal(){
+  if(editingId){
+
+  const meal = meals.find(m => m.id === editingId);
+
+  meal.name = document.getElementById("name").value;
+  meal.ingredients = document.getElementById("ingredients").value;
+  meal.recipe = document.getElementById("recipe").value;
+  meal.lastCooked = document.getElementById("lastCooked").value;
+  meal.likedBy = document.getElementById("likedBy").value;
+  meal.rating = rating;
+
+  saveMeals();
+
+  editingId = null;
+
+  renderHome();
+
+  showHome();
+
+  return;
+}
   const file=document.getElementById("photo").files[0];
 
   const meal={
@@ -432,10 +454,19 @@ function openMeal(id){
     <p><b>Ingredients:</b><br>${selected.ingredients}</p>
     <p><b>Recipe:</b><br>${selected.recipe}</p>
 
-    <p><b>Rating:</b> ⭐ ${selected.rating}</p>
+   <p><b>Rating:</b> ⭐ ${selected.rating}</p>
 
-    <button class="danger" onclick="deleteMeal()">Delete</button>
-    <button onclick="closeView()">Close</button>
+<button class="primary" onclick="toggleFavorite()">
+  ${selected.favorite ? "❤️ Remove Favorite" : "🤍 Add Favorite"}
+</button>
+
+<button onclick="editMeal()">✏️ Edit</button>
+
+<button class="danger" onclick="deleteMeal()">
+  🗑 Delete
+</button>
+
+<button onclick="closeView()">Close</button>
   `;
 
   document.getElementById("view").style.display="flex";
@@ -454,6 +485,34 @@ function deleteMeal(){
   closeView();
 }
 
+function toggleFavorite(){
+
+  selected.favorite = !selected.favorite;
+
+  saveMeals();
+
+  openMeal(selected.id);
+}
+
+function editMeal(){
+
+  editingId = selected.id;
+
+  document.getElementById("name").value = selected.name || "";
+  document.getElementById("ingredients").value = selected.ingredients || "";
+  document.getElementById("recipe").value = selected.recipe || "";
+  document.getElementById("lastCooked").value = selected.lastCooked || "";
+
+  document.getElementById("likedBy").value = selected.likedBy || "Both";
+
+  rating = selected.rating || 5;
+
+  renderStars();
+
+  showAdd();
+
+  closeView();
+}
 /* BACKUP */
 function exportData(){
   const blob=new Blob([JSON.stringify(meals)],{type:"application/json"});
