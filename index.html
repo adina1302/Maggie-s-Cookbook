@@ -47,7 +47,7 @@ body{
   box-shadow:0 6px 20px rgba(0,0,0,.12);
 }
 
-.subtitle{opacity:.9;margin-top:6px}
+.subtitle{opacity:.95;margin-top:8px}
 
 .card{
   background:var(--card);
@@ -75,10 +75,7 @@ button{
 }
 
 .primary{background:var(--burnt);color:white;}
-.secondary{
-  background:var(--sage);
-  color:white;
-}
+.secondary{background:var(--sage);color:white;}
 
 .meal-img{
   width:100%;
@@ -121,15 +118,6 @@ button{
   cursor:pointer;
 }
 
-.star{
-  transition:0.15s;
-}
-
-.star:hover{
-  transform:scale(1.2);
-}
-
-/* animation */
 @keyframes fadeIn {
   from {opacity:0; transform:translateY(10px);}
   to {opacity:1; transform:translateY(0);}
@@ -141,9 +129,10 @@ button{
 
 <div class="container">
 
+  <!-- HERO (restored your original text) -->
   <div class="hero">
-    <h1>🍳 Maggie’s Kitchen Journal</h1>
-    <p class="subtitle">Every meal, saved with love 💛</p>
+    <h1>🍳 Maggie's Cookbook</h1>
+    <p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
   </div>
 
   <!-- SEARCH -->
@@ -155,23 +144,23 @@ button{
 
   <!-- FILTER -->
   <div class="card">
-    <p><strong>Filter</strong></p>
+    <p><strong>Filter meals</strong></p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      <button class="secondary" id="filter-All" onclick="setFilter('All')">All</button>
-      <button class="secondary" id="filter-Breakfast" onclick="setFilter('Breakfast')">Breakfast</button>
-      <button class="secondary" id="filter-Lunch" onclick="setFilter('Lunch')">Lunch</button>
-      <button class="secondary" id="filter-Dinner" onclick="setFilter('Dinner')">Dinner</button>
-      <button class="secondary" id="filter-Dessert" onclick="setFilter('Dessert')">Dessert</button>
+      <button class="secondary" onclick="setFilter('All')">All</button>
+      <button class="secondary" onclick="setFilter('Breakfast')">Breakfast</button>
+      <button class="secondary" onclick="setFilter('Lunch')">Lunch</button>
+      <button class="secondary" onclick="setFilter('Dinner')">Dinner</button>
+      <button class="secondary" onclick="setFilter('Dessert')">Dessert</button>
     </div>
   </div>
 
-  <!-- ADD BUTTON -->
+  <!-- ADD MEAL (popup style) -->
   <div class="card">
     <button class="primary" onclick="toggleAddMeal()">➕ Add a new recipe</button>
 
     <div id="addMealForm" style="display:none;margin-top:12px;">
 
-      <input id="name" placeholder="What did Maggie cook? 🍝">
+      <input id="name" placeholder="Meal name">
 
       <select id="tag">
         <option>Breakfast</option>
@@ -206,78 +195,64 @@ let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
 let selectedRating = 5;
 let currentFilter = "All";
 
+/* save */
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
 /* toggle form */
 function toggleAddMeal(){
-  const form = document.getElementById("addMealForm");
-  form.style.display = form.style.display === "none" ? "block" : "none";
+  const f = document.getElementById("addMealForm");
+  f.style.display = f.style.display === "none" ? "block" : "none";
 }
 
 /* stars */
 function setupStars(){
-  const container = document.getElementById("stars");
-  container.innerHTML = "";
-
+  const c = document.getElementById("stars");
+  c.innerHTML="";
   for(let i=1;i<=5;i++){
-    const star = document.createElement("span");
-    star.innerHTML = i <= selectedRating ? "★" : "☆";
-
-    star.onclick = ()=>{
-      selectedRating = i;
-      setupStars();
-    };
-
-    container.appendChild(star);
+    const s=document.createElement("span");
+    s.innerHTML = i<=selectedRating?"★":"☆";
+    s.onclick=()=>{selectedRating=i;setupStars();}
+    c.appendChild(s);
   }
 }
 setupStars();
 
 /* filter */
 function setFilter(type){
-  currentFilter = type;
-
-  document.querySelectorAll(".secondary").forEach(b=>{
-    b.classList.remove("active");
-  });
-
-  const btn = document.getElementById("filter-"+type);
-  if(btn) btn.classList.add("active");
-
+  currentFilter=type;
   renderMeals();
 }
 
-/* save */
+/* save meal */
 function saveMeal(){
-  const file = document.getElementById("photo").files[0];
+  const file=document.getElementById("photo").files[0];
 
-  const meal = {
-    name: document.getElementById("name").value.trim(),
-    tag: document.getElementById("tag").value,
-    rating: selectedRating,
-    date: document.getElementById("date").value,
-    ingredients: document.getElementById("ingredients").value,
-    recipe: document.getElementById("recipe").value,
+  const meal={
+    name:document.getElementById("name").value.trim(),
+    tag:document.getElementById("tag").value,
+    rating:selectedRating,
+    date:document.getElementById("date").value,
+    ingredients:document.getElementById("ingredients").value,
+    recipe:document.getElementById("recipe").value,
     favorite:false
   };
 
   if(!meal.name) return alert("Add a name!");
 
-  const finish = ()=>{
+  const finish=()=>{
     meals.unshift(meal);
     saveMeals();
     renderMeals();
     toggleAddMeal();
-
-    selectedRating = 5;
+    selectedRating=5;
     setupStars();
   };
 
   if(file){
-    const r = new FileReader();
-    r.onload = e=>{ meal.photo = e.target.result; finish(); };
+    const r=new FileReader();
+    r.onload=e=>{meal.photo=e.target.result;finish();}
     r.readAsDataURL(file);
   } else {
     meal.photo="";
@@ -287,21 +262,21 @@ function saveMeal(){
 
 /* favorite */
 function toggleFavorite(name){
-  const m = meals.find(x=>x.name===name);
+  const m=meals.find(x=>x.name===name);
   if(!m) return;
-  m.favorite = !m.favorite;
+  m.favorite=!m.favorite;
   saveMeals();
   renderMeals();
 }
 
 /* random */
 function randomMeal(){
-  const box = document.getElementById("randomBox");
+  const box=document.getElementById("randomBox");
   if(!meals.length) return box.innerHTML="Add meals first 💛";
 
-  const m = meals[Math.floor(Math.random()*meals.length)];
+  const m=meals[Math.floor(Math.random()*meals.length)];
 
-  box.innerHTML = `
+  box.innerHTML=`
     <div class="card">
       <h3>🎲 Try: ${m.name}</h3>
       ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
@@ -312,18 +287,18 @@ function randomMeal(){
 
 /* render */
 function renderMeals(){
-  const q = document.getElementById("search").value.toLowerCase();
-  const box = document.getElementById("meals");
+  const q=document.getElementById("search").value.toLowerCase();
+  const box=document.getElementById("meals");
 
   box.innerHTML="";
 
-  const sorted = [...meals].sort((a,b)=>(b.favorite)-(a.favorite));
+  const sorted=[...meals].sort((a,b)=>(b.favorite)-(a.favorite));
 
   sorted.forEach(m=>{
-    if(!m.name.toLowerCase().includes(q) && !m.tag.toLowerCase().includes(q)) return;
-    if(currentFilter!=="All" && m.tag!==currentFilter) return;
+    if(!m.name.toLowerCase().includes(q)&&!m.tag.toLowerCase().includes(q)) return;
+    if(currentFilter!=="All"&&m.tag!==currentFilter) return;
 
-    box.innerHTML += `
+    box.innerHTML+=`
       <div class="card ${m.favorite?"favorite-glow":""}" style="animation:fadeIn .3s;">
 
         <div style="display:flex;justify-content:space-between;">
