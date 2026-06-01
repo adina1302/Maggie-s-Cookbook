@@ -225,6 +225,8 @@ button{
   padding:16px;
   overflow:auto;
 
+}
+
   /* LOADING SCREEN */
 
 #loader{
@@ -237,9 +239,7 @@ button{
   align-items:center;
   z-index:9999;
 
-  #loader{
-  transition: opacity 0.5s ease;
-}
+ 
 
 
 .loader-logo{
@@ -270,6 +270,46 @@ button{
   50%{transform:scale(1.08);}
   100%{transform:scale(1);}
 }
+}
+  #loader{
+  position:fixed;
+  inset:0;
+  background:#F8F2E7;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+  z-index:9999;
+  transition: opacity 0.5s ease;
+}
+
+.loader-logo{
+  width:90px;
+  height:90px;
+  border-radius:24px;
+  background:#C65D2E;
+  color:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  font-size:42px;
+  font-weight:700;
+  margin-bottom:14px;
+  animation:pulse 1.2s infinite;
+}
+
+#loader h2{
+  margin:0;
+}
+
+#loader p{
+  opacity:0.8;
+}
+
+@keyframes pulse{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.08);}
+  100%{transform:scale(1);}
 }
 </style>
 </head>
