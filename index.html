@@ -9,6 +9,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 <script src="https://unpkg.com/lucide@latest"></script>
 
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.png">
+<link rel="apple-touch-icon" href="icon.png">
+
 <style>
 :root{
   --bg:#F8F2E7;
@@ -35,11 +39,26 @@ body{
   border-radius:0 0 24px 24px;
 }
 
-/* PINTEREST */
+/* PAGES */
+.page{
+  display:none;
+  padding:14px;
+  animation:fade 0.25s ease;
+}
+
+.page.active{
+  display:block;
+}
+
+@keyframes fade{
+  from{opacity:0; transform:translateY(10px);}
+  to{opacity:1; transform:translateY(0);}
+}
+
+/* PINTEREST GRID */
 .grid{
   column-count:2;
   column-gap:12px;
-  padding:14px;
 }
 
 .pin{
@@ -50,14 +69,10 @@ body{
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
   cursor:pointer;
-  transition:0.2s;
 }
-
-.pin:active{transform:scale(0.98);}
 
 .pin img{
   width:100%;
-  display:block;
 }
 
 .pin-title{
@@ -70,6 +85,29 @@ body{
   font-size:12px;
   color:var(--muted);
 }
+
+/* INPUTS */
+input,textarea,select{
+  width:100%;
+  padding:12px;
+  margin:6px 0;
+  border-radius:12px;
+  border:1px solid rgba(0,0,0,0.1);
+}
+
+/* BUTTONS */
+button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:12px;
+  margin-top:8px;
+  cursor:pointer;
+}
+
+.primary{background:var(--accent);color:white;}
+.danger{background:#d64545;color:white;}
+.secondary{background:#eee;}
 
 /* NAV */
 .bottom-nav{
@@ -106,19 +144,18 @@ body{
   background:var(--accent);
   color:white;
   display:flex;
-  justify-content:center;
   align-items:center;
+  justify-content:center;
   cursor:pointer;
 }
 
-/* MODAL BACKDROP */
+/* RECIPE VIEW */
 .modal{
   position:fixed;
   inset:0;
   background:rgba(0,0,0,0.4);
   display:none;
   align-items:flex-end;
-  justify-content:center;
 }
 
 .modal-content{
@@ -128,78 +165,60 @@ body{
   border-radius:20px 20px 0 0;
   padding:16px;
   overflow:auto;
-  animation:slideUp 0.25s ease;
 }
-
-@keyframes slideUp{
-  from{transform:translateY(30px); opacity:0;}
-  to{transform:translateY(0); opacity:1;}
-}
-
-button{
-  border:none;
-  padding:12px;
-  border-radius:12px;
-  cursor:pointer;
-  width:100%;
-  margin-top:8px;
-}
-
-.primary{background:var(--accent);color:white;}
-.danger{background:#d64545;color:white;}
-.secondary{background:#eee;}
 </style>
 </head>
 
 <body>
 
+<!-- HEADER -->
 <div class="hero">
   <h1>Maggie's Cookbook</h1>
   <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
 </div>
 
 <!-- HOME -->
-<div id="home">
+<div id="home" class="page active">
   <div id="grid" class="grid"></div>
 </div>
 
-<!-- FAB -->
-<div class="fab" onclick="openAdd()">
+<!-- ADD PAGE (FULL SCREEN NOW) -->
+<div id="add" class="page">
+  <h2>Add Recipe</h2>
+
+  <input id="name" placeholder="Name">
+  <input id="ingredients" placeholder="Ingredients">
+  <input id="lastCooked" type="date">
+
+  <select id="likedBy">
+    <option>Both</option>
+    <option>Adina</option>
+    <option>Maggie</option>
+  </select>
+
+  <textarea id="recipe" placeholder="Recipe"></textarea>
+  <input type="file" id="photo">
+
+  <button class="primary" onclick="saveMeal()">Save</button>
+</div>
+
+<!-- FAVORITES -->
+<div id="fav" class="page"></div>
+
+<!-- FLOAT BUTTON -->
+<div class="fab" onclick="showAdd()">
   <i data-lucide="plus"></i>
 </div>
 
 <!-- NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" onclick="showHome()"><i data-lucide="home"></i></div>
+  <div class="nav-item" onclick="showHome()"><i data-lucide="home"></i></div>
   <div class="nav-item" onclick="showFav()"><i data-lucide="heart"></i></div>
   <div class="nav-item" onclick="exportData()"><i data-lucide="download"></i></div>
 </div>
 
-<!-- ADD MODAL -->
-<div class="modal" id="addModal">
-  <div class="modal-content">
-    <h3>Add Recipe</h3>
-
-    <input id="name" placeholder="Name">
-    <input id="ingredients" placeholder="Ingredients">
-    <input id="lastCooked" type="date">
-
-    <select id="likedBy">
-      <option>Both</option>
-      <option>Adina</option>
-      <option>Maggie</option>
-    </select>
-
-    <textarea id="recipe" placeholder="Recipe"></textarea>
-    <input type="file" id="photo">
-
-    <button class="primary" onclick="saveMeal()">Save</button>
-    <button class="secondary" onclick="closeAdd()">Close</button>
-  </div>
-</div>
-
-<!-- RECIPE VIEW MODAL -->
-<div class="modal" id="viewModal">
+<!-- RECIPE MODAL -->
+<div class="modal" id="view">
   <div class="modal-content" id="viewContent"></div>
 </div>
 
@@ -212,27 +231,32 @@ function saveMeals(){
   localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* HOME */
+/* NAV */
+function showPage(id){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
 function showHome(){
+  showPage("home");
   renderHome();
 }
 
-/* FAVORITES */
 function showFav(){
-  const fav = meals.filter(m=>m.favorite);
-  renderList(fav);
+  showPage("fav");
+  renderFav();
 }
 
-/* RENDER */
+function showAdd(){
+  showPage("add");
+}
+
+/* HOME */
 function renderHome(){
-  renderList(meals);
-}
-
-function renderList(list){
   const grid=document.getElementById("grid");
   grid.innerHTML="";
 
-  list.forEach(m=>{
+  meals.forEach(m=>{
     grid.innerHTML+=`
       <div class="pin" onclick="openMeal(${m.id})">
         ${m.photo?`<img src="${m.photo}">`:""}
@@ -245,13 +269,21 @@ function renderList(list){
   lucide.createIcons();
 }
 
-/* OPEN ADD */
-function openAdd(){
-  document.getElementById("addModal").style.display="flex";
-}
+/* FAVORITES */
+function renderFav(){
+  const fav=meals.filter(m=>m.favorite);
+  const box=document.getElementById("fav");
 
-function closeAdd(){
-  document.getElementById("addModal").style.display="none";
+  box.innerHTML="<h2>Favorites</h2>";
+
+  fav.forEach(m=>{
+    box.innerHTML+=`
+      <div class="pin" onclick="openMeal(${m.id})">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+      </div>
+    `;
+  });
 }
 
 /* SAVE */
@@ -271,7 +303,7 @@ function saveMeal(){
   const finish=()=>{
     meals.unshift(meal);
     saveMeals();
-    closeAdd();
+    showHome();
     renderHome();
   };
 
@@ -284,20 +316,19 @@ function saveMeal(){
   }
 }
 
-/* VIEW RECIPE */
+/* OPEN RECIPE */
 function openMeal(id){
-  const m=meals.find(x=>x.id===id);
-
-  selected = m;
+  selected=meals.find(m=>m.id===id);
 
   document.getElementById("viewContent").innerHTML=`
-    <h2>${m.name}</h2>
-    ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:12px;">`:""}
+    <h2>${selected.name}</h2>
 
-    <p><b>Ingredients:</b><br>${m.ingredients}</p>
-    <p><b>Recipe:</b><br>${m.recipe}</p>
-    <p><b>Liked by:</b> ${m.likedBy}</p>
-    <p><b>Last cooked:</b> ${m.lastCooked}</p>
+    ${selected.photo?`<img src="${selected.photo}" style="width:100%;border-radius:12px;">`:""}
+
+    <p><b>Ingredients:</b><br>${selected.ingredients}</p>
+    <p><b>Recipe:</b><br>${selected.recipe}</p>
+    <p><b>Liked by:</b> ${selected.likedBy}</p>
+    <p><b>Last cooked:</b> ${selected.lastCooked}</p>
 
     <button class="primary" onclick="toggleFav()">❤️ Favorite</button>
     <button class="secondary" onclick="editMeal()">✏️ Edit</button>
@@ -305,15 +336,14 @@ function openMeal(id){
     <button class="secondary" onclick="closeView()">Close</button>
   `;
 
-  document.getElementById("viewModal").style.display="flex";
+  document.getElementById("view").style.display="flex";
 }
 
-/* CLOSE VIEW */
 function closeView(){
-  document.getElementById("viewModal").style.display="none";
+  document.getElementById("view").style.display="none";
 }
 
-/* FAVORITE */
+/* ACTIONS */
 function toggleFav(){
   selected.favorite=!selected.favorite;
   saveMeals();
@@ -321,16 +351,14 @@ function toggleFav(){
   closeView();
 }
 
-/* DELETE */
 function deleteMeal(){
   if(!confirm("Delete this recipe?")) return;
-  meals = meals.filter(m=>m.id!==selected.id);
+  meals=meals.filter(m=>m.id!==selected.id);
   saveMeals();
   renderHome();
   closeView();
 }
 
-/* EDIT (simple reopen) */
 function editMeal(){
   document.getElementById("name").value=selected.name;
   document.getElementById("ingredients").value=selected.ingredients;
@@ -340,7 +368,7 @@ function editMeal(){
 
   deleteMeal();
   closeView();
-  openAdd();
+  showAdd();
 }
 
 /* BACKUP */
