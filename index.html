@@ -6,82 +6,61 @@
 <meta name="theme-color" content="#C65D2E">
 <title>Maggie's Cookbook</title>
 
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<script src="https://unpkg.com/lucide@latest"></script>
+
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-
 <style>
 :root{
-  --burnt:#C65D2E;
-  --cream:#F8F2E7;
-  --text:#3E2C22;
+  --bg:#F8F2E7;
+  --card:#ffffff;
+  --text:#2d2a26;
+  --muted:#7a736b;
+  --accent:#C65D2E;
+}
+
+/* 🌙 DARK MODE */
+body.dark{
+  --bg:#121212;
+  --card:#1e1e1e;
+  --text:#f2f2f2;
+  --muted:#aaa;
+  --accent:#e07b4f;
 }
 
 body{
   margin:0;
-  font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display",sans-serif;
-  background:var(--cream);
+  font-family:"Inter", -apple-system, BlinkMacSystemFont, sans-serif;
+  background:var(--bg);
   color:var(--text);
   padding-bottom:90px;
-}
-
-/* SPLASH */
-#splash{
-  position:fixed;
-  inset:0;
-  background:linear-gradient(135deg,#C65D2E,#e07b4f);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-  color:white;
-  text-align:center;
-  animation:fadeOut 0.6s ease forwards;
-  animation-delay:2.2s;
-}
-
-.logo{
-  font-size:54px;
-  animation:float 1.6s ease-in-out infinite;
-}
-
-@keyframes float{
-  0%,100%{transform:translateY(0);}
-  50%{transform:translateY(-8px);}
-}
-
-@keyframes fadeOut{
-  to{opacity:0;visibility:hidden;}
+  transition:0.3s ease;
 }
 
 /* HERO */
 .hero{
-  background:linear-gradient(135deg,#C65D2E,#e07b4f);
+  background:linear-gradient(135deg,var(--accent),#e07b4f);
   color:white;
   padding:26px;
   text-align:center;
   border-radius:0 0 24px 24px;
 }
 
-.hero h1{
-  margin:0;
-  font-size:24px;
-}
-
-.hero p{
-  margin-top:6px;
-  font-size:13px;
-  opacity:0.9;
-}
+.hero h1{margin:0;font-size:22px;}
+.hero p{margin-top:6px;font-size:13px;opacity:0.9}
 
 /* CARD */
 .card{
-  background:white;
+  background:var(--card);
   margin:14px;
   padding:14px;
   border-radius:16px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
+  box-shadow:0 8px 20px rgba(0,0,0,0.08);
 }
 
 input,textarea,select{
@@ -89,7 +68,9 @@ input,textarea,select{
   padding:12px;
   margin:6px 0;
   border-radius:12px;
-  border:1px solid #eee;
+  border:1px solid rgba(0,0,0,0.08);
+  background:transparent;
+  color:var(--text);
 }
 
 /* GRID */
@@ -101,7 +82,7 @@ input,textarea,select{
 }
 
 .pin{
-  background:white;
+  background:var(--card);
   border-radius:16px;
   overflow:hidden;
   box-shadow:0 6px 18px rgba(0,0,0,0.08);
@@ -116,15 +97,12 @@ input,textarea,select{
 .pin-title{
   padding:10px;
   font-weight:600;
-  font-size:14px;
 }
 
-/* ACTIONS */
 .pin-actions{
   display:flex;
   justify-content:space-between;
   padding:8px 10px 12px;
-  font-size:14px;
   cursor:pointer;
 }
 
@@ -138,7 +116,7 @@ button{
 }
 
 .primary{
-  background:#C65D2E;
+  background:var(--accent);
   color:white;
 }
 
@@ -149,21 +127,20 @@ button{
   left:0;
   right:0;
   height:72px;
-  background:white;
+  background:var(--card);
   display:flex;
   justify-content:space-around;
   align-items:center;
-  box-shadow:0 -6px 18px rgba(0,0,0,0.08);
+  box-shadow:0 -8px 20px rgba(0,0,0,0.08);
 }
 
 .nav-item{
-  font-size:12px;
-  color:#777;
+  color:var(--muted);
+  cursor:pointer;
 }
 
 .nav-item.active{
-  color:#C65D2E;
-  font-weight:600;
+  color:var(--accent);
 }
 
 /* FAB */
@@ -174,44 +151,50 @@ button{
   width:56px;
   height:56px;
   border-radius:50%;
-  background:#C65D2E;
+  background:var(--accent);
   color:white;
-  font-size:30px;
   display:flex;
   justify-content:center;
   align-items:center;
   cursor:pointer;
 }
 
+/* DARK TOGGLE */
+.toggle{
+  position:absolute;
+  right:14px;
+  top:14px;
+  background:rgba(255,255,255,0.2);
+  border:none;
+  color:white;
+  padding:8px 10px;
+  border-radius:10px;
+  cursor:pointer;
+}
 </style>
 </head>
 
 <body>
 
-<!-- SPLASH -->
-<div id="splash">
-  <div>
-    <div class="logo">🍳</div>
-    <h2>Maggie's Cookbook</h2>
-    <p>Made with love by Adina 💛</p>
-  </div>
+<!-- HERO -->
+<div class="hero">
+  <button class="toggle" onclick="toggleDark()">
+    <i data-lucide="moon"></i>
+  </button>
+
+  <h1>Maggie’s Cookbook</h1>
+  <p>Made by Maggie • Loved by Adina ❤️</p>
+</div>
+
+<!-- SEARCH -->
+<div class="card">
+  <input id="ingredientSearch"
+         placeholder="What ingredients do you have?"
+         oninput="renderHome()">
 </div>
 
 <!-- HOME -->
 <div id="home" class="view active">
-
-  <div class="hero">
-    <h1>🍳 Maggie's Cookbook</h1>
-    <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
-  </div>
-
-  <!-- 🔍 INGREDIENT SEARCH -->
-  <div class="card">
-    <input id="ingredientSearch"
-           placeholder="🥕 What ingredients do you have?"
-           oninput="renderHome()">
-  </div>
-
   <div id="grid" class="grid"></div>
 </div>
 
@@ -222,78 +205,73 @@ button{
 
     <input id="name" placeholder="Meal name">
     <input id="ingredients" placeholder="Ingredients (comma separated)">
-
-    <select id="tag">
-      <option>Breakfast</option>
-      <option>Lunch</option>
-      <option>Dinner</option>
-      <option>Dessert</option>
-    </select>
-
     <textarea id="recipe" placeholder="Recipe"></textarea>
     <input id="photo" type="file" accept="image/*">
 
-    <button class="primary" onclick="saveMeal()">Save 💛</button>
+    <button class="primary" onclick="saveMeal()">Save</button>
   </div>
 </div>
 
 <!-- FAVORITES -->
 <div id="fav" class="view">
   <div class="card">
-    <h3>❤️ Favorites</h3>
+    <h3>Favorites</h3>
     <div id="favGrid" class="grid"></div>
   </div>
 </div>
 
 <!-- NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" onclick="switchView('home')">🏠</div>
-  <div class="nav-item" onclick="switchView('fav')">❤️</div>
-  <div class="nav-item" onclick="switchView('add')">➕</div>
+  <div onclick="switchView('home')" class="nav-item active"><i data-lucide="home"></i></div>
+  <div onclick="switchView('fav')" class="nav-item"><i data-lucide="heart"></i></div>
+  <div onclick="switchView('add')" class="nav-item"><i data-lucide="plus"></i></div>
 </div>
 
-<!-- FAB -->
-<div class="fab" onclick="switchView('add')">+</div>
+<div class="fab" onclick="switchView('add')">
+  <i data-lucide="plus"></i>
+</div>
 
 <script>
 
-let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
+let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
 let editId = null;
 
 /* SAVE */
 function saveMeals(){
-  localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
+  localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* SPLASH */
-setTimeout(()=>{
-  document.getElementById("splash").remove();
-},2200);
+/* DARK MODE */
+function toggleDark(){
+  document.body.classList.toggle("dark");
+  localStorage.setItem("dark", document.body.classList.contains("dark"));
+}
 
-/* VIEW SWITCH */
+if(localStorage.getItem("dark")==="true"){
+  document.body.classList.add("dark");
+}
+
+/* SWITCH */
 function switchView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-/* SAVE / EDIT */
+/* SAVE MEAL */
 function saveMeal(){
-  const file = document.getElementById("photo").files[0];
+  const file=document.getElementById("photo").files[0];
 
-  const meal = {
+  const meal={
     id: editId || Date.now(),
-    name: document.getElementById("name").value,
-    ingredients: document.getElementById("ingredients").value,
-    tag: document.getElementById("tag").value,
-    recipe: document.getElementById("recipe").value,
+    name:document.getElementById("name").value,
+    ingredients:document.getElementById("ingredients").value,
+    recipe:document.getElementById("recipe").value,
     favorite:false
   };
 
-  if(!meal.name) return alert("Add a name 💛");
-
   const finish=()=>{
     if(editId){
-      meals = meals.filter(m=>m.id !== editId);
+      meals = meals.filter(m=>m.id!==editId);
     }
 
     meals.unshift(meal);
@@ -319,98 +297,81 @@ function saveMeal(){
 
 /* DELETE */
 function deleteMeal(id){
-  if(!confirm("Delete this recipe? 💔")) return;
-  meals = meals.filter(m=>m.id !== id);
+  if(!confirm("Delete this recipe?")) return;
+  meals = meals.filter(m=>m.id!==id);
   saveMeals();
   renderHome();
 }
 
 /* FAVORITE */
 function toggleFav(id){
-  const m = meals.find(x=>x.id===id);
-  m.favorite = !m.favorite;
+  const m=meals.find(x=>x.id===id);
+  m.favorite=!m.favorite;
   saveMeals();
   renderHome();
   renderFav();
 }
 
-/* EDIT */
-function editMeal(id){
-  const m = meals.find(x=>x.id===id);
-
-  document.getElementById("name").value = m.name;
-  document.getElementById("ingredients").value = m.ingredients;
-  document.getElementById("tag").value = m.tag;
-  document.getElementById("recipe").value = m.recipe;
-
-  editId = id;
-  switchView("add");
-}
-
-/* 🧠 SMART INGREDIENT MATCHING */
+/* MATCHING */
 function renderHome(){
+  const grid=document.getElementById("grid");
+  const query=document.getElementById("ingredientSearch").value.toLowerCase();
 
-  const grid = document.getElementById("grid");
-  const query = document.getElementById("ingredientSearch").value.toLowerCase();
+  const ingredients=query.split(",").map(i=>i.trim()).filter(Boolean);
 
-  const searchIngredients = query
-    .split(",")
-    .map(i => i.trim())
-    .filter(Boolean);
+  let sorted = meals.map(m=>{
+    let score=0;
 
-  let sorted = meals.map(m => {
-
-    let score = 0;
-
-    searchIngredients.forEach(ing => {
-      if(m.ingredients?.toLowerCase().includes(ing)) score += 2;
-      if(m.name?.toLowerCase().includes(ing)) score += 1;
+    ingredients.forEach(i=>{
+      if(m.ingredients?.toLowerCase().includes(i)) score+=2;
+      if(m.name?.toLowerCase().includes(i)) score+=1;
     });
 
-    return {...m, score};
+    return {...m,score};
   });
 
-  sorted.sort((a,b)=>b.score - a.score);
+  sorted.sort((a,b)=>b.score-a.score);
 
-  grid.innerHTML = "";
+  grid.innerHTML="";
 
   sorted.forEach(m=>{
-    grid.innerHTML += `
-      <div class="pin" style="opacity:${query && m.score===0 ? 0.4 : 1}">
-
-        ${m.photo ? `<img src="${m.photo}">` : ""}
-
+    grid.innerHTML+=`
+      <div class="pin">
+        ${m.photo?`<img src="${m.photo}">`:""}
         <div class="pin-title">${m.name}</div>
 
         <div class="pin-actions">
           <span onclick="toggleFav(${m.id})">${m.favorite?"❤️":"🤍"}</span>
-          <span onclick="editMeal(${m.id})">✏️</span>
-          <span onclick="deleteMeal(${m.id})">🗑️</span>
+          <span onclick="deleteMeal(${m.id})"><i data-lucide="trash"></i></span>
         </div>
-
       </div>
     `;
   });
+
+  lucide.createIcons();
 }
 
 /* FAVORITES */
 function renderFav(){
-  const grid = document.getElementById("favGrid");
-  grid.innerHTML = "";
+  const grid=document.getElementById("favGrid");
+  grid.innerHTML="";
 
   meals.filter(m=>m.favorite).forEach(m=>{
-    grid.innerHTML += `
+    grid.innerHTML+=`
       <div class="pin">
-        ${m.photo ? `<img src="${m.photo}">` : ""}
+        ${m.photo?`<img src="${m.photo}">`:""}
         <div class="pin-title">${m.name}</div>
       </div>
     `;
   });
+
+  lucide.createIcons();
 }
 
 /* INIT */
 renderHome();
 renderFav();
+lucide.createIcons();
 
 </script>
 
