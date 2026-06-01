@@ -24,7 +24,11 @@ body{
   color:var(--text);
 }
 
-.container{max-width:900px;margin:auto;padding:18px;}
+.container{
+  max-width:900px;
+  margin:auto;
+  padding:18px;
+}
 
 .hero{
   background:linear-gradient(135deg,var(--burnt),#d97a4d);
@@ -43,14 +47,6 @@ body{
   padding:16px;
   margin-top:16px;
   box-shadow:0 3px 12px rgba(0,0,0,.08);
-  transition:0.2s ease;
-}
-
-/* ❤️ FAVORITE GLOW */
-.card.favorite-glow{
-  box-shadow:0 6px 20px rgba(198,93,46,0.25);
-  border:1px solid rgba(198,93,46,0.25);
-  transform:scale(1.01);
 }
 
 input,textarea,select{
@@ -71,7 +67,12 @@ button{
 }
 
 .primary{background:var(--burnt);color:white;}
-.secondary{background:var(--sage);color:white;}
+.secondary{background:var(--sage);color:white;transition:0.2s;}
+
+.secondary:hover{
+  transform:scale(1.05);
+  opacity:0.9;
+}
 
 .meal-img{
   width:100%;
@@ -102,6 +103,13 @@ button{
   gap:14px;
 }
 
+/* ❤️ FAVORITE GLOW */
+.favorite-glow{
+  box-shadow:0 6px 20px rgba(198,93,46,0.25);
+  border:1px solid rgba(198,93,46,0.25);
+  transform:scale(1.01);
+}
+
 /* ⭐ STAR SYSTEM */
 .star-container{
   display:flex;
@@ -110,9 +118,11 @@ button{
   cursor:pointer;
   user-select:none;
 }
+
 .star{
-  transition:0.15s ease;
+  transition:0.15s;
 }
+
 .star:hover{
   transform:scale(1.2);
 }
@@ -128,12 +138,29 @@ button{
 <p class="subtitle">Made by Maggie. Taste-tested and approved by Adina ❤️</p>
 </div>
 
+<!-- SEARCH + RANDOM -->
 <div class="card">
 <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
+
 <button class="primary" onclick="randomMeal()">🎲 What should I cook today?</button>
+
 <div id="randomBox"></div>
 </div>
 
+<!-- FILTER -->
+<div class="card">
+<p><strong>Filter by meal type</strong></p>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;">
+  <button class="secondary" onclick="setFilter('All')">All</button>
+  <button class="secondary" onclick="setFilter('Breakfast')">Breakfast</button>
+  <button class="secondary" onclick="setFilter('Lunch')">Lunch</button>
+  <button class="secondary" onclick="setFilter('Dinner')">Dinner</button>
+  <button class="secondary" onclick="setFilter('Dessert')">Dessert</button>
+</div>
+</div>
+
+<!-- ADD MEAL -->
 <div class="card">
 <h2>Add a Meal 💛</h2>
 
@@ -146,7 +173,6 @@ button{
 <option>Dessert</option>
 </select>
 
-<!-- ⭐ FIXED STAR SYSTEM -->
 <p>Rating</p>
 <div id="stars" class="star-container"></div>
 
@@ -161,6 +187,7 @@ button{
 <button class="primary" onclick="saveMeal()">Save Meal</button>
 </div>
 
+<!-- MEALS -->
 <div id="meals" class="grid"></div>
 
 </div>
@@ -169,19 +196,20 @@ button{
 
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
 let selectedRating = 5;
+let currentFilter = "All";
 
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* ⭐ FIXED STAR SYSTEM */
+/* ⭐ STAR SYSTEM */
 function setupStars(){
   const container = document.getElementById("stars");
   container.innerHTML = "";
 
   for(let i=1;i<=5;i++){
     const star = document.createElement("span");
-    star.classList.add("star");
+    star.className = "star";
     star.innerHTML = i <= selectedRating ? "★" : "☆";
 
     star.onclick = ()=>{
@@ -194,6 +222,12 @@ function setupStars(){
 }
 
 setupStars();
+
+/* FILTER */
+function setFilter(type){
+  currentFilter = type;
+  renderMeals();
+}
 
 /* SAVE */
 function saveMeal(){
@@ -215,7 +249,7 @@ function saveMeal(){
     return;
   }
 
-  const saveAndRender = () => {
+  const saveAndRender = ()=>{
     meals.unshift(mealData);
     saveMeals();
     renderMeals();
@@ -246,7 +280,7 @@ function saveMeal(){
 
 /* FAVORITES */
 function toggleFavorite(name){
-  const meal = meals.find(m => m.name === name);
+  const meal = meals.find(m=>m.name===name);
   if(!meal) return;
 
   meal.favorite = !meal.favorite;
@@ -256,6 +290,7 @@ function toggleFavorite(name){
 
 /* RANDOM */
 function randomMeal(){
+
   const box = document.getElementById("randomBox");
 
   if(meals.length===0){
@@ -275,7 +310,7 @@ function randomMeal(){
   `;
 }
 
-/* RENDER + FAVORITES FIRST + GLOW */
+/* RENDER */
 function renderMeals(){
 
   const q = document.getElementById("search").value.toLowerCase();
@@ -297,7 +332,14 @@ function renderMeals(){
 
   sorted.forEach(meal=>{
 
-    if(!meal.name.toLowerCase().includes(q) && !meal.tag.toLowerCase().includes(q)){
+    if(
+      !meal.name.toLowerCase().includes(q) &&
+      !meal.tag.toLowerCase().includes(q)
+    ){
+      return;
+    }
+
+    if(currentFilter !== "All" && meal.tag !== currentFilter){
       return;
     }
 
@@ -332,5 +374,6 @@ function renderMeals(){
 renderMeals();
 
 </script>
+
 </body>
 </html>
