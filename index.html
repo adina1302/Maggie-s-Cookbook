@@ -7,11 +7,9 @@
 <title>Maggie's Cookbook</title>
 
 <link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon.png">
 
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
-<link rel="apple-touch-icon" href="icon.png">
 
 <style>
 :root{
@@ -19,7 +17,6 @@
   --cream:#F8F2E7;
   --sage:#A7B89A;
   --text:#4A3428;
-  --card:#FFFFFF;
 }
 
 body{
@@ -27,76 +24,67 @@ body{
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
   background:var(--cream);
   color:var(--text);
-  padding-bottom:80px;
+  padding-bottom:90px;
 }
 
-.container{
-  max-width:900px;
-  margin:auto;
-  padding:18px;
-}
-
+/* HEADER */
 .hero{
   background:linear-gradient(135deg,var(--burnt),#d97a4d);
   color:white;
-  padding:24px;
-  border-radius:24px;
+  padding:22px;
+  border-radius:0 0 24px 24px;
   text-align:center;
-  box-shadow:0 6px 20px rgba(0,0,0,.12);
 }
 
-.card{
-  background:var(--card);
-  border-radius:20px;
-  padding:16px;
-  margin-top:16px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
+/* PAGES */
+.view{display:none;animation:fade .25s ease;}
+.view.active{display:block;}
+
+@keyframes fade{
+  from{opacity:0;transform:translateY(8px);}
+  to{opacity:1;transform:translateY(0);}
 }
 
-input,textarea,select{
-  width:100%;
+/* PINTEREST GRID */
+.grid{
+  columns:2 160px;
+  column-gap:12px;
   padding:12px;
-  border-radius:12px;
-  border:1px solid #ddd;
-  margin-top:8px;
-  margin-bottom:10px;
 }
 
+.pin{
+  break-inside:avoid;
+  margin-bottom:12px;
+  background:white;
+  border-radius:16px;
+  overflow:hidden;
+  box-shadow:0 4px 12px rgba(0,0,0,.08);
+  cursor:pointer;
+  position:relative;
+}
+
+.pin img{
+  width:100%;
+  display:block;
+}
+
+.pin-title{
+  padding:10px;
+  font-weight:600;
+}
+
+/* BUTTONS */
 button{
   border:none;
-  border-radius:14px;
-  padding:12px 16px;
-  cursor:pointer;
+  border-radius:12px;
+  padding:10px 14px;
   font-weight:600;
+  cursor:pointer;
 }
 
 .primary{background:var(--burnt);color:white;}
 
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
-  gap:14px;
-}
-
-.meal-img{
-  width:100%;
-  border-radius:14px;
-  margin-top:10px;
-  max-height:300px;
-  object-fit:cover;
-}
-
-.tag{
-  display:inline-block;
-  background:var(--sage);
-  color:white;
-  padding:4px 10px;
-  border-radius:999px;
-  font-size:12px;
-}
-
-.favorite{font-size:22px;cursor:pointer;}
-
+/* BOTTOM NAV */
 .bottom-nav{
   position:fixed;
   bottom:0;
@@ -107,16 +95,14 @@ button{
   display:flex;
   justify-content:space-around;
   align-items:center;
-  box-shadow:0 -4px 12px rgba(0,0,0,.1);
-  border-top-left-radius:20px;
-  border-top-right-radius:20px;
+  box-shadow:0 -4px 14px rgba(0,0,0,.1);
 }
 
 .nav-item{
-  text-align:center;
   font-size:12px;
-  cursor:pointer;
+  text-align:center;
   color:#666;
+  cursor:pointer;
 }
 
 .nav-item.active{
@@ -124,106 +110,124 @@ button{
   font-weight:700;
 }
 
-.view{display:none;}
-.view.active{display:block;}
-
-.favorite-glow{
-  box-shadow:0 6px 20px rgba(198,93,46,0.25);
+/* FLOATING ADD BUTTON */
+.fab{
+  position:fixed;
+  bottom:85px;
+  right:18px;
+  width:58px;
+  height:58px;
+  border-radius:50%;
+  background:var(--burnt);
+  color:white;
+  font-size:28px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 8px 20px rgba(0,0,0,.2);
+  cursor:pointer;
 }
 
+/* ADD FORM */
+.card{
+  background:white;
+  margin:14px;
+  padding:14px;
+  border-radius:16px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+input,textarea,select{
+  width:100%;
+  padding:10px;
+  margin:6px 0;
+  border-radius:10px;
+  border:1px solid #ddd;
+}
 </style>
 </head>
 
 <body>
 
-<div class="container">
+<!-- HOME -->
+<div id="home" class="view active">
 
-  <!-- HOME VIEW -->
-  <div id="home" class="view active">
-
-    <div class="hero">
-      <h1>🍳 Maggie's Cookbook</h1>
-      <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
-    </div>
-
-    <div class="card">
-      <input id="search" placeholder="🔍 Search meals..." oninput="renderMeals()">
-    </div>
-
-    <div id="meals" class="grid"></div>
+  <div class="hero">
+    <h1>🍳 Maggie's Cookbook</h1>
+    <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
   </div>
 
-  <!-- ADD VIEW -->
-  <div id="add" class="view">
-    <div class="card">
-      <h2>➕ Add Recipe</h2>
-
-      <input id="name" placeholder="Meal name">
-
-      <select id="tag">
-        <option>Breakfast</option>
-        <option>Lunch</option>
-        <option>Dinner</option>
-        <option>Dessert</option>
-      </select>
-
-      <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
-      <textarea id="recipe" placeholder="👩‍🍳 Recipe"></textarea>
-
-      <input id="photo" type="file" accept="image/*">
-
-      <button class="primary" onclick="saveMeal()">Save 💛</button>
-    </div>
-  </div>
-
-  <!-- FAVORITES VIEW -->
-  <div id="fav" class="view">
-    <div class="card">
-      <h2>❤️ Favorites</h2>
-      <div id="favList" class="grid"></div>
-    </div>
-  </div>
-
-  <!-- SURPRISE VIEW -->
-  <div id="surprise" class="view">
-    <div class="card">
-      <button class="primary" onclick="randomMeal()">🎲 Pick for me</button>
-      <div id="randomBox"></div>
-    </div>
-  </div>
-
+  <div id="grid" class="grid"></div>
 </div>
+
+<!-- ADD -->
+<div id="add" class="view">
+  <div class="card">
+    <h2>➕ Add Recipe</h2>
+
+    <input id="name" placeholder="Meal name">
+    <select id="tag">
+      <option>Breakfast</option>
+      <option>Lunch</option>
+      <option>Dinner</option>
+      <option>Dessert</option>
+    </select>
+
+    <textarea id="ingredients" placeholder="🥕 Ingredients"></textarea>
+    <textarea id="recipe" placeholder="👩‍🍳 Recipe"></textarea>
+
+    <input id="photo" type="file" accept="image/*">
+
+    <button class="primary" onclick="saveMeal()">Save 💛</button>
+  </div>
+</div>
+
+<!-- FAVORITES -->
+<div id="fav" class="view">
+  <div class="card">
+    <h2>❤️ Favorites</h2>
+    <div id="favGrid" class="grid"></div>
+  </div>
+</div>
+
+<!-- SURPRISE -->
+<div id="surprise" class="view">
+  <div class="card">
+    <button class="primary" onclick="randomMeal()">🎲 Pick for me</button>
+    <div id="randomBox"></div>
+  </div>
+</div>
+
+<!-- FLOATING BUTTON -->
+<div class="fab" onclick="switchView('add')">+</div>
 
 <!-- BOTTOM NAV -->
 <div class="bottom-nav">
-  <div class="nav-item active" onclick="switchView('home')">🏠<br>Home</div>
-  <div class="nav-item" onclick="switchView('add')">➕<br>Add</div>
-  <div class="nav-item" onclick="switchView('surprise')">🎲<br>Surprise</div>
-  <div class="nav-item" onclick="switchView('fav')">❤️<br>Favs</div>
+  <div class="nav-item active" onclick="switchView('home')">🏠</div>
+  <div class="nav-item" onclick="switchView('fav')">❤️</div>
+  <div class="nav-item" onclick="switchView('surprise')">🎲</div>
 </div>
 
 <script>
 
 let meals = JSON.parse(localStorage.getItem("maggiesCookbook")) || [];
 
-/* save */
+/* SAVE */
 function saveMeals(){
   localStorage.setItem("maggiesCookbook", JSON.stringify(meals));
 }
 
-/* switch tabs */
+/* SWITCH VIEW */
 function switchView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 
   document.querySelectorAll(".nav-item").forEach(n=>n.classList.remove("active"));
-  event.target.classList.add("active");
 
-  if(id==="fav") renderFav();
-  if(id==="home") renderMeals();
+  renderAll();
 }
 
-/* save meal */
+/* SAVE MEAL */
 function saveMeal(){
   const file=document.getElementById("photo").files[0];
 
@@ -240,7 +244,7 @@ function saveMeal(){
   const finish=()=>{
     meals.unshift(meal);
     saveMeals();
-    alert("Saved 💛");
+    switchView("home");
   };
 
   if(file){
@@ -253,57 +257,47 @@ function saveMeal(){
   }
 }
 
-/* render meals */
-function renderMeals(){
-  const box=document.getElementById("meals");
-  const q=document.getElementById("search")?.value?.toLowerCase()||"";
-
-  box.innerHTML="";
-
-  meals.forEach(m=>{
-    if(!m.name.toLowerCase().includes(q)) return;
-
-    box.innerHTML+=`
-      <div class="card ${m.favorite?"favorite-glow":""}">
-        <div style="display:flex;justify-content:space-between;">
-          <h3>${m.name}</h3>
-          <span onclick="toggleFav('${m.name}')">${m.favorite?"❤️":"🤍"}</span>
-        </div>
-
-        ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
-
-        <p>${m.tag}</p>
-        <p>${m.ingredients}</p>
-        <p>${m.recipe}</p>
-      </div>
-    `;
-  });
-}
-
-/* fav */
+/* TOGGLE FAVORITE */
 function toggleFav(name){
   const m=meals.find(x=>x.name===name);
   m.favorite=!m.favorite;
   saveMeals();
-  renderMeals();
+  renderAll();
 }
 
-/* favorites */
-function renderFav(){
-  const box=document.getElementById("favList");
-  box.innerHTML="";
+/* PINTEREST GRID HOME */
+function renderHome(){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
 
-  meals.filter(m=>m.favorite).forEach(m=>{
-    box.innerHTML+=`
-      <div class="card">
-        <h3>${m.name}</h3>
-        ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
+  meals.forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin" onclick="toggleFav('${m.name}')">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">
+          ${m.name} ${m.favorite?"❤️":""}
+        </div>
       </div>
     `;
   });
 }
 
-/* random */
+/* FAVORITES */
+function renderFav(){
+  const grid=document.getElementById("favGrid");
+  grid.innerHTML="";
+
+  meals.filter(m=>m.favorite).forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+      </div>
+    `;
+  });
+}
+
+/* RANDOM */
 function randomMeal(){
   const box=document.getElementById("randomBox");
   if(!meals.length) return;
@@ -313,12 +307,18 @@ function randomMeal(){
   box.innerHTML=`
     <div class="card">
       <h3>🎲 ${m.name}</h3>
-      ${m.photo?`<img class="meal-img" src="${m.photo}">`:""}
+      ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:12px;">`:""}
     </div>
   `;
 }
 
-renderMeals();
+/* RENDER ALL */
+function renderAll(){
+  renderHome();
+  renderFav();
+}
+
+renderAll();
 
 </script>
 
