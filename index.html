@@ -6,12 +6,8 @@
 <meta name="theme-color" content="#C65D2E">
 <title>Maggie's Cookbook</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
 <script src="https://unpkg.com/lucide@latest"></script>
-
-<link rel="manifest" href="manifest.json">
 
 <style>
 :root{
@@ -24,13 +20,13 @@
 
 body{
   margin:0;
-  font-family:"Inter", -apple-system, sans-serif;
+  font-family:"Inter", sans-serif;
   background:var(--bg);
   color:var(--text);
-  padding-bottom:90px;
+  padding-bottom:80px;
 }
 
-/* HERO */
+/* HEADER */
 .hero{
   background:linear-gradient(135deg,var(--accent),#e07b4f);
   color:white;
@@ -39,42 +35,25 @@ body{
   border-radius:0 0 24px 24px;
 }
 
-.hero h1{margin:0;font-size:22px;}
-.hero p{margin-top:6px;font-size:13px;opacity:0.9}
-
-/* CARD */
-.card{
-  background:var(--card);
-  margin:14px;
-  padding:14px;
-  border-radius:16px;
-  box-shadow:0 6px 18px rgba(0,0,0,0.08);
-}
-
-input,textarea,select{
-  width:100%;
-  padding:12px;
-  margin:6px 0;
-  border-radius:12px;
-  border:1px solid rgba(0,0,0,0.1);
-}
-
-/* PINTEREST GRID */
+/* PINTEREST */
 .grid{
   column-count:2;
   column-gap:12px;
-  padding:12px;
+  padding:14px;
 }
 
 .pin{
   break-inside:avoid;
   margin-bottom:12px;
   background:white;
-  border-radius:16px;
+  border-radius:18px;
   overflow:hidden;
-  box-shadow:0 6px 16px rgba(0,0,0,0.08);
+  box-shadow:0 6px 18px rgba(0,0,0,0.08);
   cursor:pointer;
+  transition:0.2s;
 }
+
+.pin:active{transform:scale(0.98);}
 
 .pin img{
   width:100%;
@@ -89,7 +68,7 @@ input,textarea,select{
 .pin-meta{
   padding:0 10px 10px;
   font-size:12px;
-  color:#7a736b;
+  color:var(--muted);
 }
 
 /* NAV */
@@ -99,7 +78,8 @@ input,textarea,select{
   left:0;
   right:0;
   height:72px;
-  background:white;
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(12px);
   display:flex;
   justify-content:space-around;
   align-items:center;
@@ -126,40 +106,83 @@ input,textarea,select{
   background:var(--accent);
   color:white;
   display:flex;
-  align-items:center;
   justify-content:center;
+  align-items:center;
   cursor:pointer;
 }
+
+/* MODAL BACKDROP */
+.modal{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.4);
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+}
+
+.modal-content{
+  background:white;
+  width:100%;
+  max-height:90%;
+  border-radius:20px 20px 0 0;
+  padding:16px;
+  overflow:auto;
+  animation:slideUp 0.25s ease;
+}
+
+@keyframes slideUp{
+  from{transform:translateY(30px); opacity:0;}
+  to{transform:translateY(0); opacity:1;}
+}
+
+button{
+  border:none;
+  padding:12px;
+  border-radius:12px;
+  cursor:pointer;
+  width:100%;
+  margin-top:8px;
+}
+
+.primary{background:var(--accent);color:white;}
+.danger{background:#d64545;color:white;}
+.secondary{background:#eee;}
 </style>
 </head>
 
 <body>
 
-<!-- HERO -->
 <div class="hero">
   <h1>Maggie's Cookbook</h1>
   <p>Made by Maggie. Taste-tested and approved by Adina ❤️</p>
 </div>
 
 <!-- HOME -->
-<div id="home" class="view active">
+<div id="home">
   <div id="grid" class="grid"></div>
 </div>
 
-<!-- ADD -->
-<div id="add" class="view">
-  <div class="card">
+<!-- FAB -->
+<div class="fab" onclick="openAdd()">
+  <i data-lucide="plus"></i>
+</div>
+
+<!-- NAV -->
+<div class="bottom-nav">
+  <div class="nav-item active" onclick="showHome()"><i data-lucide="home"></i></div>
+  <div class="nav-item" onclick="showFav()"><i data-lucide="heart"></i></div>
+  <div class="nav-item" onclick="exportData()"><i data-lucide="download"></i></div>
+</div>
+
+<!-- ADD MODAL -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
     <h3>Add Recipe</h3>
 
-    <input id="name" placeholder="Meal name">
-
-    <!-- ⭐ STARS -->
-    <p>Rating</p>
-    <div id="stars"></div>
-
-    <input id="lastCooked" type="date">
-
+    <input id="name" placeholder="Name">
     <input id="ingredients" placeholder="Ingredients">
+    <input id="lastCooked" type="date">
 
     <select id="likedBy">
       <option>Both</option>
@@ -168,63 +191,70 @@ input,textarea,select{
     </select>
 
     <textarea id="recipe" placeholder="Recipe"></textarea>
+    <input type="file" id="photo">
 
-    <input id="photo" type="file" accept="image/*">
-
-    <button onclick="saveMeal()" style="width:100%;padding:12px;border:none;border-radius:12px;background:#C65D2E;color:white;">
-      Save
-    </button>
+    <button class="primary" onclick="saveMeal()">Save</button>
+    <button class="secondary" onclick="closeAdd()">Close</button>
   </div>
 </div>
 
-<!-- FAVORITES -->
-<div id="fav" class="view"></div>
-
-<!-- FLOAT BUTTON -->
-<div class="fab" onclick="switchView('add')">
-  <i data-lucide="plus"></i>
-</div>
-
-<!-- NAV -->
-<div class="bottom-nav">
-  <div onclick="switchView('home')" class="nav-item"><i data-lucide="home"></i></div>
-  <div onclick="switchView('fav')" class="nav-item"><i data-lucide="heart"></i></div>
+<!-- RECIPE VIEW MODAL -->
+<div class="modal" id="viewModal">
+  <div class="modal-content" id="viewContent"></div>
 </div>
 
 <script>
 
 let meals = JSON.parse(localStorage.getItem("cookbook")) || [];
-let selectedRating = 5;
+let selected = null;
 
-/* SAVE */
 function saveMeals(){
   localStorage.setItem("cookbook", JSON.stringify(meals));
 }
 
-/* VIEW SWITCH */
-function switchView(id){
-  document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
+/* HOME */
+function showHome(){
+  renderHome();
 }
 
-/* ⭐ STARS */
-function renderStars(){
-  const el=document.getElementById("stars");
-  el.innerHTML="";
-
-  for(let i=1;i<=5;i++){
-    const s=document.createElement("span");
-    s.innerHTML = i <= selectedRating ? "⭐" : "☆";
-    s.style.fontSize="22px";
-    s.style.cursor="pointer";
-
-    s.onclick=()=>{selectedRating=i; renderStars();};
-
-    el.appendChild(s);
-  }
+/* FAVORITES */
+function showFav(){
+  const fav = meals.filter(m=>m.favorite);
+  renderList(fav);
 }
 
-/* SAVE MEAL */
+/* RENDER */
+function renderHome(){
+  renderList(meals);
+}
+
+function renderList(list){
+  const grid=document.getElementById("grid");
+  grid.innerHTML="";
+
+  list.forEach(m=>{
+    grid.innerHTML+=`
+      <div class="pin" onclick="openMeal(${m.id})">
+        ${m.photo?`<img src="${m.photo}">`:""}
+        <div class="pin-title">${m.name}</div>
+        <div class="pin-meta">❤️ ${m.likedBy}</div>
+      </div>
+    `;
+  });
+
+  lucide.createIcons();
+}
+
+/* OPEN ADD */
+function openAdd(){
+  document.getElementById("addModal").style.display="flex";
+}
+
+function closeAdd(){
+  document.getElementById("addModal").style.display="none";
+}
+
+/* SAVE */
 function saveMeal(){
   const file=document.getElementById("photo").files[0];
 
@@ -235,76 +265,95 @@ function saveMeal(){
     recipe:document.getElementById("recipe").value,
     likedBy:document.getElementById("likedBy").value,
     lastCooked:document.getElementById("lastCooked").value,
-    rating:selectedRating,
     favorite:false
   };
 
   const finish=()=>{
     meals.unshift(meal);
     saveMeals();
+    closeAdd();
     renderHome();
-    switchView("home");
   };
 
   if(file){
     const r=new FileReader();
-    r.onload=e=>{
-      meal.photo=e.target.result;
-      finish();
-    };
+    r.onload=e=>{meal.photo=e.target.result; finish();};
     r.readAsDataURL(file);
   } else {
-    meal.photo="";
     finish();
   }
 }
 
-/* HOME (PINTEREST) */
-function renderHome(){
-  const grid=document.getElementById("grid");
-  grid.innerHTML="";
-
-  meals.forEach(m=>{
-    grid.innerHTML+=`
-      <div class="pin" onclick="openMeal(${m.id})">
-
-        ${m.photo?`<img src="${m.photo}">`:""}
-
-        <div class="pin-title">${m.name}</div>
-
-        <div class="pin-meta">
-          ❤️ Liked by ${m.likedBy}<br>
-          ⭐ ${m.rating || 0}/5
-        </div>
-
-      </div>
-    `;
-  });
-
-  lucide.createIcons();
-}
-
-/* DETAIL VIEW */
+/* VIEW RECIPE */
 function openMeal(id){
   const m=meals.find(x=>x.id===id);
 
-  alert(
-`${m.name}
+  selected = m;
 
-⭐ Rating: ${m.rating}/5
-📅 Last cooked: ${m.lastCooked}
-❤️ Liked by: ${m.likedBy}
+  document.getElementById("viewContent").innerHTML=`
+    <h2>${m.name}</h2>
+    ${m.photo?`<img src="${m.photo}" style="width:100%;border-radius:12px;">`:""}
 
-🥕 Ingredients:
-${m.ingredients}
+    <p><b>Ingredients:</b><br>${m.ingredients}</p>
+    <p><b>Recipe:</b><br>${m.recipe}</p>
+    <p><b>Liked by:</b> ${m.likedBy}</p>
+    <p><b>Last cooked:</b> ${m.lastCooked}</p>
 
-🍳 Recipe:
-${m.recipe}`
-  );
+    <button class="primary" onclick="toggleFav()">❤️ Favorite</button>
+    <button class="secondary" onclick="editMeal()">✏️ Edit</button>
+    <button class="danger" onclick="deleteMeal()">🗑️ Delete</button>
+    <button class="secondary" onclick="closeView()">Close</button>
+  `;
+
+  document.getElementById("viewModal").style.display="flex";
+}
+
+/* CLOSE VIEW */
+function closeView(){
+  document.getElementById("viewModal").style.display="none";
+}
+
+/* FAVORITE */
+function toggleFav(){
+  selected.favorite=!selected.favorite;
+  saveMeals();
+  renderHome();
+  closeView();
+}
+
+/* DELETE */
+function deleteMeal(){
+  if(!confirm("Delete this recipe?")) return;
+  meals = meals.filter(m=>m.id!==selected.id);
+  saveMeals();
+  renderHome();
+  closeView();
+}
+
+/* EDIT (simple reopen) */
+function editMeal(){
+  document.getElementById("name").value=selected.name;
+  document.getElementById("ingredients").value=selected.ingredients;
+  document.getElementById("recipe").value=selected.recipe;
+  document.getElementById("likedBy").value=selected.likedBy;
+  document.getElementById("lastCooked").value=selected.lastCooked;
+
+  deleteMeal();
+  closeView();
+  openAdd();
+}
+
+/* BACKUP */
+function exportData(){
+  const blob=new Blob([JSON.stringify(meals)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");
+  a.href=url;
+  a.download="cookbook.json";
+  a.click();
 }
 
 /* INIT */
-renderStars();
 renderHome();
 lucide.createIcons();
 
